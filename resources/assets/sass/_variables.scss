@@ -1,0 +1,17 @@
+$pink: #ffb3b3; // Add pink
+$turquoise: #00d1b2; // Add turquoise
+$success: #23D160; // Add success
+$grey-lighter: #dbdbdb; // Add grey-lighter
+$yellow: #ffdd57; // Add yellow
+$dark: #363636;
+$family-serif: "Fira Code";
+$family-primary: $family-serif;
+$link-active: $turquoise;
+$link-hover: $turquoise;
+$link-hover-background: $grey-lighter;
+
+$tablet: 769px;
+$desktop: 1000px;
+$widescreen: 1192px;
+
+$disappear-state: '@shouldDisappear({when: @win-scrollTop, isHigherThan: @win-height/4})';

@@ -9,5 +9,11 @@
     "laravel-mix": "^0.3.0",
     "vue": "^2.0.1",
     "vue-router": "^2.1.1"
+  },
+  "dependencies": {
+    "hover.css": "^2.0.2",
+    "jump.js": "^1.0.2",
+    "vue-chartjs": "^2.3.3",
+    "vue-lory": "0.0.4"
   }
 }
