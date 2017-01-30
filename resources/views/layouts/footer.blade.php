@@ -1,7 +1,5 @@
 <footer class="footer">
   <div class="container">
-    <button class="button is-outlined is-primary" @click="jumpToTop" style="position:absolute;right:5%;"></button>
-
     <div class="content has-text-centered">
       <p>
         <strong>Fredesk</strong> => <a href="http://fredesk.com">Frederic Brüning</a>. The source code is licensed
@@ -15,4 +13,5 @@
       </p>
     </div>
   </div>
+  <button class="button is-outlined is-primary" @click="jumpToTop" style="position:absolute;right:5%;width: 5%;"></button>
 </footer>

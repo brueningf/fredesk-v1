@@ -145,15 +145,23 @@
             // axios call here.
         },
         mounted() {
-          window.setInterval(function () {
-            document.querySelector('#next').click()
-          }, 6000)
+          this.slider()
+          
         },
         components: {
           Lory,
           Item, 
           Next,
           Prev
+        },
+        methods: {
+          slider() {
+              setInterval(function () {
+                if (self.$route.path == '/about') {
+                  document.querySelector('#next').click()
+                }
+              }, 6000)        
+          }
         }
     }
 </script>

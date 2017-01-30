@@ -8,12 +8,12 @@
 						<img width="130" src="/img/logo-fredesk.png" alt="Fredesk">
 					</a>
 				</div>
-				<span class="nav-toggle">
+				<span @click="toggleNav" class="nav-toggle">
 					<span></span>
 					<span></span>
 					<span></span>
 				</span>
-				<div class="nav-right nav-menu" @click="jumpToSection">
+				<div :class="{'nav-right': true, 'nav-menu': true, 'is-active': mobileNav}" @click="jumpToSection">
 
 					<router-link class="nav-item hvr-underline-from-left" active-class="is-active" to="/" exact>
 		         	Home

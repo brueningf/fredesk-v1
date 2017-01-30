@@ -9,13 +9,17 @@ var app = new Vue({
     el: '#app',
     data() {
       return {
-        loading: true
+        loading: true,
+        mobileNav: false
       }
     },
     components: {
       PacmanLoader
     },
     methods: {
+      toggleNav() {
+        this.mobileNav = !this.mobileNav
+      },
       jumpToSection() {      
         setTimeout(function() {
           jump('.hero .hero-body.has-text-centered', {

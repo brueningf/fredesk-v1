@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "./";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 56);
+/******/ 	return __webpack_require__(__webpack_require__.s = 69);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -566,7 +566,7 @@ process.umask = function() { return 0; };
 /* WEBPACK VAR INJECTION */(function(process) {
 
 var utils = __webpack_require__(0);
-var normalizeHeaderName = __webpack_require__(26);
+var normalizeHeaderName = __webpack_require__(28);
 
 var PROTECTION_PREFIX = /^\)\]\}',?\n/;
 var DEFAULT_CONTENT_TYPE = {
@@ -667,12 +667,12 @@ module.exports = defaults;
 /* WEBPACK VAR INJECTION */(function(process) {
 
 var utils = __webpack_require__(0);
-var settle = __webpack_require__(18);
-var buildURL = __webpack_require__(21);
-var parseHeaders = __webpack_require__(27);
-var isURLSameOrigin = __webpack_require__(25);
+var settle = __webpack_require__(20);
+var buildURL = __webpack_require__(23);
+var parseHeaders = __webpack_require__(29);
+var isURLSameOrigin = __webpack_require__(27);
 var createError = __webpack_require__(6);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(20);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(22);
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -768,7 +768,7 @@ module.exports = function xhrAdapter(config) {
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
     if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(23);
+      var cookies = __webpack_require__(25);
 
       // Add xsrf header
       var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -889,7 +889,7 @@ module.exports = function isCancel(value) {
 "use strict";
 
 
-var enhanceError = __webpack_require__(17);
+var enhanceError = __webpack_require__(19);
 
 /**
  * Create an Error with the specified message, config, error code, and response.
@@ -926,15 +926,85 @@ module.exports = function bind(fn, thisArg) {
 
 /***/ }),
 /* 8 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function() {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		var result = [];
+		for(var i = 0; i < this.length; i++) {
+			var item = this[i];
+			if(item[2]) {
+				result.push("@media " + item[2] + "{" + item[1] + "}");
+			} else {
+				result.push(item[1]);
+			}
+		}
+		return result.join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {/**
-  * vue-router v2.1.3
+  * vue-router v2.2.0
   * (c) 2017 Evan You
   * @license MIT
   */
 
+
+/*  */
+
+function assert (condition, message) {
+  if (!condition) {
+    throw new Error(("[vue-router] " + message))
+  }
+}
+
+function warn (condition, message) {
+  if (!condition) {
+    typeof console !== 'undefined' && console.warn(("[vue-router] " + message));
+  }
+}
 
 var View = {
   name: 'router-view',
@@ -951,77 +1021,91 @@ var View = {
     var parent = ref.parent;
     var data = ref.data;
 
-    data.routerView = true
+    data.routerView = true;
 
-    var name = props.name
-    var route = parent.$route
-    var cache = parent._routerViewCache || (parent._routerViewCache = {})
+    var name = props.name;
+    var route = parent.$route;
+    var cache = parent._routerViewCache || (parent._routerViewCache = {});
 
     // determine current view depth, also check to see if the tree
     // has been toggled inactive but kept-alive.
-    var depth = 0
-    var inactive = false
+    var depth = 0;
+    var inactive = false;
     while (parent) {
       if (parent.$vnode && parent.$vnode.data.routerView) {
-        depth++
+        depth++;
       }
       if (parent._inactive) {
-        inactive = true
+        inactive = true;
       }
-      parent = parent.$parent
+      parent = parent.$parent;
     }
-    data.routerViewDepth = depth
+    data.routerViewDepth = depth;
 
     // render previous view if the tree is inactive and kept-alive
     if (inactive) {
       return h(cache[name], data, children)
     }
 
-    var matched = route.matched[depth]
+    var matched = route.matched[depth];
     // render empty node if no matched route
     if (!matched) {
-      cache[name] = null
+      cache[name] = null;
       return h()
     }
 
-    var component = cache[name] = matched.components[name]
+    var component = cache[name] = matched.components[name];
 
     // inject instance registration hooks
-    var hooks = data.hook || (data.hook = {})
+    var hooks = data.hook || (data.hook = {});
     hooks.init = function (vnode) {
-      matched.instances[name] = vnode.child
-    }
+      matched.instances[name] = vnode.child;
+    };
     hooks.prepatch = function (oldVnode, vnode) {
-      matched.instances[name] = vnode.child
-    }
+      matched.instances[name] = vnode.child;
+    };
     hooks.destroy = function (vnode) {
       if (matched.instances[name] === vnode.child) {
-        matched.instances[name] = undefined
+        matched.instances[name] = undefined;
       }
-    }
+    };
+
+    // resolve props
+    data.props = resolveProps(route, matched.props && matched.props[name]);
 
     return h(component, data, children)
   }
+};
+
+function resolveProps (route, config) {
+  switch (typeof config) {
+    case 'undefined':
+      return
+    case 'object':
+      return config
+    case 'function':
+      return config(route)
+    case 'boolean':
+      return config ? route.params : undefined
+    default:
+      warn(false, ("props in \"" + (route.path) + "\" is a " + (typeof config) + ", expecting an object, function or boolean."));
+  }
 }
 
 /*  */
 
-function assert (condition, message) {
-  if (!condition) {
-    throw new Error(("[vue-router] " + message))
-  }
-}
+var encodeReserveRE = /[!'()*]/g;
+var encodeReserveReplacer = function (c) { return '%' + c.charCodeAt(0).toString(16); };
+var commaRE = /%2C/g;
 
-function warn (condition, message) {
-  if (!condition) {
-    typeof console !== 'undefined' && console.warn(("[vue-router] " + message))
-  }
-}
+// fixed encodeURIComponent which is more comformant to RFC3986:
+// - escapes [!'()*]
+// - preserve commas
+var encode = function (str) { return encodeURIComponent(str)
+  .replace(encodeReserveRE, encodeReserveReplacer)
+  .replace(commaRE, ','); };
 
-/*  */
-
-var encode = encodeURIComponent
-var decode = decodeURIComponent
+var decode = decodeURIComponent;
 
 function resolveQuery (
   query,
@@ -1030,15 +1114,15 @@ function resolveQuery (
   if ( extraQuery === void 0 ) extraQuery = {};
 
   if (query) {
-    var parsedQuery
+    var parsedQuery;
     try {
-      parsedQuery = parseQuery(query)
+      parsedQuery = parseQuery(query);
     } catch (e) {
-      process.env.NODE_ENV !== 'production' && warn(false, e.message)
-      parsedQuery = {}
+      process.env.NODE_ENV !== 'production' && warn(false, e.message);
+      parsedQuery = {};
     }
     for (var key in extraQuery) {
-      parsedQuery[key] = extraQuery[key]
+      parsedQuery[key] = extraQuery[key];
     }
     return parsedQuery
   } else {
@@ -1047,36 +1131,36 @@ function resolveQuery (
 }
 
 function parseQuery (query) {
-  var res = {}
+  var res = {};
 
-  query = query.trim().replace(/^(\?|#|&)/, '')
+  query = query.trim().replace(/^(\?|#|&)/, '');
 
   if (!query) {
     return res
   }
 
   query.split('&').forEach(function (param) {
-    var parts = param.replace(/\+/g, ' ').split('=')
-    var key = decode(parts.shift())
+    var parts = param.replace(/\+/g, ' ').split('=');
+    var key = decode(parts.shift());
     var val = parts.length > 0
       ? decode(parts.join('='))
-      : null
+      : null;
 
     if (res[key] === undefined) {
-      res[key] = val
+      res[key] = val;
     } else if (Array.isArray(res[key])) {
-      res[key].push(val)
+      res[key].push(val);
     } else {
-      res[key] = [res[key], val]
+      res[key] = [res[key], val];
     }
-  })
+  });
 
   return res
 }
 
 function stringifyQuery (obj) {
   var res = obj ? Object.keys(obj).map(function (key) {
-    var val = obj[key]
+    var val = obj[key];
 
     if (val === undefined) {
       return ''
@@ -1087,28 +1171,28 @@ function stringifyQuery (obj) {
     }
 
     if (Array.isArray(val)) {
-      var result = []
+      var result = [];
       val.slice().forEach(function (val2) {
         if (val2 === undefined) {
           return
         }
         if (val2 === null) {
-          result.push(encode(key))
+          result.push(encode(key));
         } else {
-          result.push(encode(key) + '=' + encode(val2))
+          result.push(encode(key) + '=' + encode(val2));
         }
-      })
+      });
       return result.join('&')
     }
 
     return encode(key) + '=' + encode(val)
-  }).filter(function (x) { return x.length > 0; }).join('&') : null
+  }).filter(function (x) { return x.length > 0; }).join('&') : null;
   return res ? ("?" + res) : ''
 }
 
 /*  */
 
-var trailingSlashRE = /\/?$/
+var trailingSlashRE = /\/?$/;
 
 function createRoute (
   record,
@@ -1124,9 +1208,9 @@ function createRoute (
     params: location.params || {},
     fullPath: getFullPath(location),
     matched: record ? formatMatch(record) : []
-  }
+  };
   if (redirectedFrom) {
-    route.redirectedFrom = getFullPath(redirectedFrom)
+    route.redirectedFrom = getFullPath(redirectedFrom);
   }
   return Object.freeze(route)
 }
@@ -1134,13 +1218,13 @@ function createRoute (
 // the starting route that represents the initial state
 var START = createRoute(null, {
   path: '/'
-})
+});
 
 function formatMatch (record) {
-  var res = []
+  var res = [];
   while (record) {
-    res.unshift(record)
-    record = record.parent
+    res.unshift(record);
+    record = record.parent;
   }
   return res
 }
@@ -1180,8 +1264,8 @@ function isObjectEqual (a, b) {
   if ( a === void 0 ) a = {};
   if ( b === void 0 ) b = {};
 
-  var aKeys = Object.keys(a)
-  var bKeys = Object.keys(b)
+  var aKeys = Object.keys(a);
+  var bKeys = Object.keys(b);
   if (aKeys.length !== bKeys.length) {
     return false
   }
@@ -1210,7 +1294,8 @@ function queryIncludes (current, target) {
 /*  */
 
 // work around weird flow bug
-var toTypes = [String, Object]
+var toTypes = [String, Object];
+var eventTypes = [String, Array];
 
 var Link = {
   name: 'router-link',
@@ -1228,97 +1313,95 @@ var Link = {
     replace: Boolean,
     activeClass: String,
     event: {
-      type: [String, Array],
+      type: eventTypes,
       default: 'click'
     }
   },
   render: function render (h) {
     var this$1 = this;
 
-    var router = this.$router
-    var current = this.$route
+    var router = this.$router;
+    var current = this.$route;
     var ref = router.resolve(this.to, current, this.append);
-    var normalizedTo = ref.normalizedTo;
-    var resolved = ref.resolved;
+    var location = ref.location;
+    var route = ref.route;
     var href = ref.href;
-    var classes = {}
-    var activeClass = this.activeClass || router.options.linkActiveClass || 'router-link-active'
-    var compareTarget = normalizedTo.path ? createRoute(null, normalizedTo) : resolved
+    var classes = {};
+    var activeClass = this.activeClass || router.options.linkActiveClass || 'router-link-active';
+    var compareTarget = location.path ? createRoute(null, location) : route;
     classes[activeClass] = this.exact
       ? isSameRoute(current, compareTarget)
-      : isIncludedRoute(current, compareTarget)
+      : isIncludedRoute(current, compareTarget);
 
     var handler = function (e) {
       if (guardEvent(e)) {
         if (this$1.replace) {
-          router.replace(normalizedTo)
+          router.replace(location);
         } else {
-          router.push(normalizedTo)
+          router.push(location);
         }
       }
-    }
+    };
 
-    var on = { click: guardEvent }
+    var on = { click: guardEvent };
     if (Array.isArray(this.event)) {
-      this.event.forEach(function (e) { on[e] = handler })
+      this.event.forEach(function (e) { on[e] = handler; });
     } else {
-      on[this.event] = handler
+      on[this.event] = handler;
     }
 
     var data = {
       class: classes
-    }
+    };
 
     if (this.tag === 'a') {
-      data.on = on
-      data.attrs = { href: href }
+      data.on = on;
+      data.attrs = { href: href };
     } else {
       // find the first <a> child and apply listener and href
-      var a = findAnchor(this.$slots.default)
+      var a = findAnchor(this.$slots.default);
       if (a) {
         // in case the <a> is a static node
-        a.isStatic = false
-        var extend = _Vue.util.extend
-        var aData = a.data = extend({}, a.data)
-        aData.on = on
-        var aAttrs = a.data.attrs = extend({}, a.data.attrs)
-        aAttrs.href = href
+        a.isStatic = false;
+        var extend = _Vue.util.extend;
+        var aData = a.data = extend({}, a.data);
+        aData.on = on;
+        var aAttrs = a.data.attrs = extend({}, a.data.attrs);
+        aAttrs.href = href;
       } else {
         // doesn't have <a> child, apply listener to self
-        data.on = on
+        data.on = on;
       }
     }
 
     return h(this.tag, data, this.$slots.default)
   }
-}
+};
 
 function guardEvent (e) {
   // don't redirect with control keys
-  /* istanbul ignore if */
   if (e.metaKey || e.ctrlKey || e.shiftKey) { return }
   // don't redirect when preventDefault called
-  /* istanbul ignore if */
   if (e.defaultPrevented) { return }
   // don't redirect on right click
-  /* istanbul ignore if */
   if (e.button !== undefined && e.button !== 0) { return }
   // don't redirect if `target="_blank"`
-  /* istanbul ignore if */
   if (e.target && e.target.getAttribute) {
-    var target = e.target.getAttribute('target')
+    var target = e.target.getAttribute('target');
     if (/\b_blank\b/i.test(target)) { return }
   }
-
-  e.preventDefault()
+  // this may be a Weex event which doesn't have this method
+  if (e.preventDefault) {
+    e.preventDefault();
+  }
   return true
 }
 
 function findAnchor (children) {
   if (children) {
-    var child
+    var child;
     for (var i = 0; i < children.length; i++) {
-      child = children[i]
+      child = children[i];
       if (child.tag === 'a') {
         return child
       }
@@ -1329,39 +1412,43 @@ function findAnchor (children) {
   }
 }
 
-var _Vue
+var _Vue;
 
 function install (Vue) {
   if (install.installed) { return }
-  install.installed = true
+  install.installed = true;
 
-  _Vue = Vue
+  _Vue = Vue;
 
   Object.defineProperty(Vue.prototype, '$router', {
     get: function get () { return this.$root._router }
-  })
+  });
 
   Object.defineProperty(Vue.prototype, '$route', {
-    get: function get$1 () { return this.$root._route }
-  })
+    get: function get () { return this.$root._route }
+  });
 
   Vue.mixin({
     beforeCreate: function beforeCreate () {
       if (this.$options.router) {
-        this._router = this.$options.router
-        this._router.init(this)
-        Vue.util.defineReactive(this, '_route', this._router.history.current)
+        this._router = this.$options.router;
+        this._router.init(this);
+        Vue.util.defineReactive(this, '_route', this._router.history.current);
       }
     }
-  })
+  });
 
-  Vue.component('router-view', View)
-  Vue.component('router-link', Link)
+  Vue.component('router-view', View);
+  Vue.component('router-link', Link);
 
-  var strats = Vue.config.optionMergeStrategies
+  var strats = Vue.config.optionMergeStrategies;
   // use the same hook merging strategy for route hooks
-  strats.beforeRouteEnter = strats.beforeRouteLeave = strats.created
+  strats.beforeRouteEnter = strats.beforeRouteLeave = strats.created;
 }
+
+/*  */
+
+var inBrowser = typeof window !== 'undefined';
 
 /*  */
 
@@ -1378,50 +1465,50 @@ function resolvePath (
     return base + relative
   }
 
-  var stack = base.split('/')
+  var stack = base.split('/');
 
   // remove trailing segment if:
   // - not appending
   // - appending to trailing slash (last segment is empty)
   if (!append || !stack[stack.length - 1]) {
-    stack.pop()
+    stack.pop();
   }
 
   // resolve relative path
-  var segments = relative.replace(/^\//, '').split('/')
+  var segments = relative.replace(/^\//, '').split('/');
   for (var i = 0; i < segments.length; i++) {
-    var segment = segments[i]
+    var segment = segments[i];
     if (segment === '.') {
       continue
     } else if (segment === '..') {
-      stack.pop()
+      stack.pop();
     } else {
-      stack.push(segment)
+      stack.push(segment);
     }
   }
 
   // ensure leading slash
   if (stack[0] !== '') {
-    stack.unshift('')
+    stack.unshift('');
   }
 
   return stack.join('/')
 }
 
 function parsePath (path) {
-  var hash = ''
-  var query = ''
+  var hash = '';
+  var query = '';
 
-  var hashIndex = path.indexOf('#')
+  var hashIndex = path.indexOf('#');
   if (hashIndex >= 0) {
-    hash = path.slice(hashIndex)
-    path = path.slice(0, hashIndex)
+    hash = path.slice(hashIndex);
+    path = path.slice(0, hashIndex);
   }
 
-  var queryIndex = path.indexOf('?')
+  var queryIndex = path.indexOf('?');
   if (queryIndex >= 0) {
-    query = path.slice(queryIndex + 1)
-    path = path.slice(0, queryIndex)
+    query = path.slice(queryIndex + 1);
+    path = path.slice(0, queryIndex);
   }
 
   return {
@@ -1437,13 +1524,17 @@ function cleanPath (path) {
 
 /*  */
 
-function createRouteMap (routes) {
-  var pathMap = Object.create(null)
-  var nameMap = Object.create(null)
+function createRouteMap (
+  routes,
+  oldPathMap,
+  oldNameMap
+) {
+  var pathMap = oldPathMap || Object.create(null);
+  var nameMap = oldNameMap || Object.create(null);
 
   routes.forEach(function (route) {
-    addRouteRecord(pathMap, nameMap, route)
-  })
+    addRouteRecord(pathMap, nameMap, route);
+  });
 
   return {
     pathMap: pathMap,
@@ -1461,12 +1552,12 @@ function addRouteRecord (
   var path = route.path;
   var name = route.name;
   if (process.env.NODE_ENV !== 'production') {
-    assert(path != null, "\"path\" is required in a route configuration.")
+    assert(path != null, "\"path\" is required in a route configuration.");
     assert(
       typeof route.component !== 'string',
       "route config \"component\" for path: " + (String(path || name)) + " cannot be a " +
       "string id. Use an actual component instead."
-    )
+    );
   }
 
   var record = {
@@ -1478,8 +1569,13 @@ function addRouteRecord (
     matchAs: matchAs,
     redirect: route.redirect,
     beforeEnter: route.beforeEnter,
-    meta: route.meta || {}
-  }
+    meta: route.meta || {},
+    props: route.props == null
+      ? {}
+      : route.components
+        ? route.props
+        : { default: route.props }
+  };
 
   if (route.children) {
     // Warn if route is named and has a default child route.
@@ -1494,15 +1590,15 @@ function addRouteRecord (
           "the default child route will not be rendered. Remove the name from " +
           "this route and use the name of the default child route for named " +
           "links instead."
-        )
+        );
       }
     }
     route.children.forEach(function (child) {
       var childMatchAs = matchAs
         ? cleanPath((matchAs + "/" + (child.path)))
-        : undefined
-      addRouteRecord(pathMap, nameMap, child, record, childMatchAs)
-    })
+        : undefined;
+      addRouteRecord(pathMap, nameMap, child, record, childMatchAs);
+    });
   }
 
   if (route.alias !== undefined) {
@@ -1511,56 +1607,56 @@ function addRouteRecord (
         var aliasRoute = {
           path: alias,
           children: route.children
-        }
-        addRouteRecord(pathMap, nameMap, aliasRoute, parent, record.path)
-      })
+        };
+        addRouteRecord(pathMap, nameMap, aliasRoute, parent, record.path);
+      });
     } else {
       var aliasRoute = {
         path: route.alias,
         children: route.children
-      }
-      addRouteRecord(pathMap, nameMap, aliasRoute, parent, record.path)
+      };
+      addRouteRecord(pathMap, nameMap, aliasRoute, parent, record.path);
     }
   }
 
   if (!pathMap[record.path]) {
-    pathMap[record.path] = record
+    pathMap[record.path] = record;
   }
 
   if (name) {
     if (!nameMap[name]) {
-      nameMap[name] = record
-    } else if (process.env.NODE_ENV !== 'production') {
+      nameMap[name] = record;
+    } else if (process.env.NODE_ENV !== 'production' && !matchAs) {
       warn(
         false,
         "Duplicate named routes definition: " +
         "{ name: \"" + name + "\", path: \"" + (record.path) + "\" }"
-      )
+      );
     }
   }
 }
 
 function normalizePath (path, parent) {
-  path = path.replace(/\/$/, '')
+  path = path.replace(/\/$/, '');
   if (path[0] === '/') { return path }
   if (parent == null) { return path }
   return cleanPath(((parent.path) + "/" + path))
 }
 
-var __moduleExports = Array.isArray || function (arr) {
+var index$1 = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-var isarray = __moduleExports
+var isarray = index$1;
 
 /**
  * Expose `pathToRegexp`.
  */
-var index = pathToRegexp
-var parse_1 = parse
-var compile_1 = compile
-var tokensToFunction_1 = tokensToFunction
-var tokensToRegExp_1 = tokensToRegExp
+var index = pathToRegexp;
+var parse_1 = parse;
+var compile_1 = compile;
+var tokensToFunction_1 = tokensToFunction;
+var tokensToRegExp_1 = tokensToRegExp;
 
 /**
  * The main path matching regexp utility.
@@ -1578,7 +1674,7 @@ var PATH_REGEXP = new RegExp([
   // "/route(\\d+)"  => [undefined, undefined, undefined, "\d+", undefined, undefined]
   // "/*"            => ["/", undefined, undefined, undefined, undefined, "*"]
   '([\\/.])?(?:(?:\\:(\\w+)(?:\\(((?:\\\\.|[^\\\\()])+)\\))?|\\(((?:\\\\.|[^\\\\()])+)\\))([+*?])?|(\\*))'
-].join('|'), 'g')
+].join('|'), 'g');
 
 /**
  * Parse a string for the raw tokens.
@@ -1588,45 +1684,45 @@ var PATH_REGEXP = new RegExp([
  * @return {!Array}
  */
 function parse (str, options) {
-  var tokens = []
-  var key = 0
-  var index = 0
-  var path = ''
-  var defaultDelimiter = options && options.delimiter || '/'
-  var res
+  var tokens = [];
+  var key = 0;
+  var index = 0;
+  var path = '';
+  var defaultDelimiter = options && options.delimiter || '/';
+  var res;
 
   while ((res = PATH_REGEXP.exec(str)) != null) {
-    var m = res[0]
-    var escaped = res[1]
-    var offset = res.index
-    path += str.slice(index, offset)
-    index = offset + m.length
+    var m = res[0];
+    var escaped = res[1];
+    var offset = res.index;
+    path += str.slice(index, offset);
+    index = offset + m.length;
 
     // Ignore already escaped sequences.
     if (escaped) {
-      path += escaped[1]
+      path += escaped[1];
       continue
     }
 
-    var next = str[index]
-    var prefix = res[2]
-    var name = res[3]
-    var capture = res[4]
-    var group = res[5]
-    var modifier = res[6]
-    var asterisk = res[7]
+    var next = str[index];
+    var prefix = res[2];
+    var name = res[3];
+    var capture = res[4];
+    var group = res[5];
+    var modifier = res[6];
+    var asterisk = res[7];
 
     // Push the current path onto the tokens.
     if (path) {
-      tokens.push(path)
-      path = ''
+      tokens.push(path);
+      path = '';
     }
 
-    var partial = prefix != null && next != null && next !== prefix
-    var repeat = modifier === '+' || modifier === '*'
-    var optional = modifier === '?' || modifier === '*'
-    var delimiter = res[2] || defaultDelimiter
-    var pattern = capture || group
+    var partial = prefix != null && next != null && next !== prefix;
+    var repeat = modifier === '+' || modifier === '*';
+    var optional = modifier === '?' || modifier === '*';
+    var delimiter = res[2] || defaultDelimiter;
+    var pattern = capture || group;
 
     tokens.push({
       name: name || key++,
@@ -1637,17 +1733,17 @@ function parse (str, options) {
       partial: partial,
       asterisk: !!asterisk,
       pattern: pattern ? escapeGroup(pattern) : (asterisk ? '.*' : '[^' + escapeString(delimiter) + ']+?')
-    })
+    });
   }
 
   // Match any characters still remaining.
   if (index < str.length) {
-    path += str.substr(index)
+    path += str.substr(index);
   }
 
   // If the path exists, push it onto the end.
   if (path) {
-    tokens.push(path)
+    tokens.push(path);
   }
 
   return tokens
@@ -1693,38 +1789,38 @@ function encodeAsterisk (str) {
  */
 function tokensToFunction (tokens) {
   // Compile all the tokens into regexps.
-  var matches = new Array(tokens.length)
+  var matches = new Array(tokens.length);
 
   // Compile all the patterns before compilation.
   for (var i = 0; i < tokens.length; i++) {
     if (typeof tokens[i] === 'object') {
-      matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$')
+      matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$');
     }
   }
 
   return function (obj, opts) {
-    var path = ''
-    var data = obj || {}
-    var options = opts || {}
-    var encode = options.pretty ? encodeURIComponentPretty : encodeURIComponent
+    var path = '';
+    var data = obj || {};
+    var options = opts || {};
+    var encode = options.pretty ? encodeURIComponentPretty : encodeURIComponent;
 
     for (var i = 0; i < tokens.length; i++) {
-      var token = tokens[i]
+      var token = tokens[i];
 
       if (typeof token === 'string') {
-        path += token
+        path += token;
 
         continue
       }
 
-      var value = data[token.name]
-      var segment
+      var value = data[token.name];
+      var segment;
 
       if (value == null) {
         if (token.optional) {
           // Prepend partial segment prefixes.
           if (token.partial) {
-            path += token.prefix
+            path += token.prefix;
           }
 
           continue
@@ -1747,25 +1843,25 @@ function tokensToFunction (tokens) {
         }
 
         for (var j = 0; j < value.length; j++) {
-          segment = encode(value[j])
+          segment = encode(value[j]);
 
           if (!matches[i].test(segment)) {
             throw new TypeError('Expected all "' + token.name + '" to match "' + token.pattern + '", but received `' + JSON.stringify(segment) + '`')
           }
 
-          path += (j === 0 ? token.prefix : token.delimiter) + segment
+          path += (j === 0 ? token.prefix : token.delimiter) + segment;
         }
 
         continue
       }
 
-      segment = token.asterisk ? encodeAsterisk(value) : encode(value)
+      segment = token.asterisk ? encodeAsterisk(value) : encode(value);
 
       if (!matches[i].test(segment)) {
         throw new TypeError('Expected "' + token.name + '" to match "' + token.pattern + '", but received "' + segment + '"')
       }
 
-      path += token.prefix + segment
+      path += token.prefix + segment;
     }
 
     return path
@@ -1800,7 +1896,7 @@ function escapeGroup (group) {
  * @return {!RegExp}
  */
 function attachKeys (re, keys) {
-  re.keys = keys
+  re.keys = keys;
   return re
 }
 
@@ -1823,7 +1919,7 @@ function flags (options) {
  */
 function regexpToRegexp (path, keys) {
   // Use a negative lookahead to match only capturing groups.
-  var groups = path.source.match(/\((?!\?)/g)
+  var groups = path.source.match(/\((?!\?)/g);
 
   if (groups) {
     for (var i = 0; i < groups.length; i++) {
@@ -1836,7 +1932,7 @@ function regexpToRegexp (path, keys) {
         partial: false,
         asterisk: false,
         pattern: null
-      })
+      });
     }
   }
 
@@ -1852,13 +1948,13 @@ function regexpToRegexp (path, keys) {
  * @return {!RegExp}
  */
 function arrayToRegexp (path, keys, options) {
-  var parts = []
+  var parts = [];
 
   for (var i = 0; i < path.length; i++) {
-    parts.push(pathToRegexp(path[i], keys, options).source)
+    parts.push(pathToRegexp(path[i], keys, options).source);
   }
 
-  var regexp = new RegExp('(?:' + parts.join('|') + ')', flags(options))
+  var regexp = new RegExp('(?:' + parts.join('|') + ')', flags(options));
 
   return attachKeys(regexp, keys)
 }
@@ -1885,63 +1981,63 @@ function stringToRegexp (path, keys, options) {
  */
 function tokensToRegExp (tokens, keys, options) {
   if (!isarray(keys)) {
-    options = /** @type {!Object} */ (keys || options)
-    keys = []
+    options = /** @type {!Object} */ (keys || options);
+    keys = [];
   }
 
-  options = options || {}
+  options = options || {};
 
-  var strict = options.strict
-  var end = options.end !== false
-  var route = ''
+  var strict = options.strict;
+  var end = options.end !== false;
+  var route = '';
 
   // Iterate over the tokens and create our regexp string.
   for (var i = 0; i < tokens.length; i++) {
-    var token = tokens[i]
+    var token = tokens[i];
 
     if (typeof token === 'string') {
-      route += escapeString(token)
+      route += escapeString(token);
     } else {
-      var prefix = escapeString(token.prefix)
-      var capture = '(?:' + token.pattern + ')'
+      var prefix = escapeString(token.prefix);
+      var capture = '(?:' + token.pattern + ')';
 
-      keys.push(token)
+      keys.push(token);
 
       if (token.repeat) {
-        capture += '(?:' + prefix + capture + ')*'
+        capture += '(?:' + prefix + capture + ')*';
       }
 
       if (token.optional) {
         if (!token.partial) {
-          capture = '(?:' + prefix + '(' + capture + '))?'
+          capture = '(?:' + prefix + '(' + capture + '))?';
         } else {
-          capture = prefix + '(' + capture + ')?'
+          capture = prefix + '(' + capture + ')?';
         }
       } else {
-        capture = prefix + '(' + capture + ')'
+        capture = prefix + '(' + capture + ')';
       }
 
-      route += capture
+      route += capture;
     }
   }
 
-  var delimiter = escapeString(options.delimiter || '/')
-  var endsWithDelimiter = route.slice(-delimiter.length) === delimiter
+  var delimiter = escapeString(options.delimiter || '/');
+  var endsWithDelimiter = route.slice(-delimiter.length) === delimiter;
 
   // In non-strict mode we allow a slash at the end of match. If the path to
   // match already ends with a slash, we remove it for consistency. The slash
   // is valid at the end of a path match, not in the middle. This is important
   // in non-ending mode, where "/test/" shouldn't match "/test//route".
   if (!strict) {
-    route = (endsWithDelimiter ? route.slice(0, -delimiter.length) : route) + '(?:' + delimiter + '(?=$))?'
+    route = (endsWithDelimiter ? route.slice(0, -delimiter.length) : route) + '(?:' + delimiter + '(?=$))?';
   }
 
   if (end) {
-    route += '$'
+    route += '$';
   } else {
     // In non-ending mode, we need the capturing groups to match as much as
     // possible by using a positive lookahead to the end or next path segment.
-    route += strict && endsWithDelimiter ? '' : '(?=' + delimiter + '|$)'
+    route += strict && endsWithDelimiter ? '' : '(?=' + delimiter + '|$)';
   }
 
   return attachKeys(new RegExp('^' + route, flags(options)), keys)
@@ -1961,11 +2057,11 @@ function tokensToRegExp (tokens, keys, options) {
  */
 function pathToRegexp (path, keys, options) {
   if (!isarray(keys)) {
-    options = /** @type {!Object} */ (keys || options)
-    keys = []
+    options = /** @type {!Object} */ (keys || options);
+    keys = [];
   }
 
-  options = options || {}
+  options = options || {};
 
   if (path instanceof RegExp) {
     return regexpToRegexp(path, /** @type {!Array} */ (keys))
@@ -1985,25 +2081,25 @@ index.tokensToRegExp = tokensToRegExp_1;
 
 /*  */
 
-var regexpCache = Object.create(null)
+var regexpCache = Object.create(null);
 
 function getRouteRegex (path) {
-  var hit = regexpCache[path]
-  var keys, regexp
+  var hit = regexpCache[path];
+  var keys, regexp;
 
   if (hit) {
-    keys = hit.keys
-    regexp = hit.regexp
+    keys = hit.keys;
+    regexp = hit.regexp;
   } else {
-    keys = []
-    regexp = index(path, keys)
-    regexpCache[path] = { keys: keys, regexp: regexp }
+    keys = [];
+    regexp = index(path, keys);
+    regexpCache[path] = { keys: keys, regexp: regexp };
   }
 
   return { keys: keys, regexp: regexp }
 }
 
-var regexpCompileCache = Object.create(null)
+var regexpCompileCache = Object.create(null);
 
 function fillParams (
   path,
@@ -2013,11 +2109,11 @@ function fillParams (
   try {
     var filler =
       regexpCompileCache[path] ||
-      (regexpCompileCache[path] = index.compile(path))
+      (regexpCompileCache[path] = index.compile(path));
     return filler(params || {}, { pretty: true })
   } catch (e) {
     if (process.env.NODE_ENV !== 'production') {
-      warn(false, ("missing param for " + routeMsg + ": " + (e.message)))
+      warn(false, ("missing param for " + routeMsg + ": " + (e.message)));
     }
     return ''
   }
@@ -2030,7 +2126,7 @@ function normalizeLocation (
   current,
   append
 ) {
-  var next = typeof raw === 'string' ? { path: raw } : raw
+  var next = typeof raw === 'string' ? { path: raw } : raw;
   // named target
   if (next.name || next._normalized) {
     return next
@@ -2038,30 +2134,30 @@ function normalizeLocation (
 
   // relative params
   if (!next.path && next.params && current) {
-    next = assign({}, next)
-    next._normalized = true
-    var params = assign(assign({}, current.params), next.params)
+    next = assign({}, next);
+    next._normalized = true;
+    var params = assign(assign({}, current.params), next.params);
     if (current.name) {
-      next.name = current.name
-      next.params = params
+      next.name = current.name;
+      next.params = params;
     } else if (current.matched) {
-      var rawPath = current.matched[current.matched.length - 1].path
-      next.path = fillParams(rawPath, params, ("path " + (current.path)))
+      var rawPath = current.matched[current.matched.length - 1].path;
+      next.path = fillParams(rawPath, params, ("path " + (current.path)));
     } else if (process.env.NODE_ENV !== 'production') {
-      warn(false, "relative params navigation requires a current route.")
+      warn(false, "relative params navigation requires a current route.");
     }
     return next
   }
 
-  var parsedPath = parsePath(next.path || '')
-  var basePath = (current && current.path) || '/'
+  var parsedPath = parsePath(next.path || '');
+  var basePath = (current && current.path) || '/';
   var path = parsedPath.path
     ? resolvePath(parsedPath.path, basePath, append || next.append)
-    : (current && current.path) || '/'
-  var query = resolveQuery(parsedPath.query, next.query)
-  var hash = next.hash || parsedPath.hash
+    : (current && current.path) || '/';
+  var query = resolveQuery(parsedPath.query, next.query);
+  var hash = next.hash || parsedPath.hash;
   if (hash && hash.charAt(0) !== '#') {
-    hash = "#" + hash
+    hash = "#" + hash;
   }
 
   return {
@@ -2074,7 +2170,7 @@ function normalizeLocation (
 
 function assign (a, b) {
   for (var key in b) {
-    a[key] = b[key]
+    a[key] = b[key];
   }
   return a
 }
@@ -2086,41 +2182,45 @@ function createMatcher (routes) {
   var pathMap = ref.pathMap;
   var nameMap = ref.nameMap;
 
+  function addRoutes (routes) {
+    createRouteMap(routes, pathMap, nameMap);
+  }
+
   function match (
     raw,
     currentRoute,
     redirectedFrom
   ) {
-    var location = normalizeLocation(raw, currentRoute)
+    var location = normalizeLocation(raw, currentRoute);
     var name = location.name;
 
     if (name) {
-      var record = nameMap[name]
+      var record = nameMap[name];
       if (process.env.NODE_ENV !== 'production') {
-        warn(record, ("Route with name '" + name + "' does not exist"))
+        warn(record, ("Route with name '" + name + "' does not exist"));
       }
       var paramNames = getRouteRegex(record.path).keys
         .filter(function (key) { return !key.optional; })
-        .map(function (key) { return key.name; })
+        .map(function (key) { return key.name; });
 
       if (typeof location.params !== 'object') {
-        location.params = {}
+        location.params = {};
       }
 
       if (currentRoute && typeof currentRoute.params === 'object') {
         for (var key in currentRoute.params) {
           if (!(key in location.params) && paramNames.indexOf(key) > -1) {
-            location.params[key] = currentRoute.params[key]
+            location.params[key] = currentRoute.params[key];
           }
         }
       }
 
       if (record) {
-        location.path = fillParams(record.path, location.params, ("named route \"" + name + "\""))
+        location.path = fillParams(record.path, location.params, ("named route \"" + name + "\""));
         return _createRoute(record, location, redirectedFrom)
       }
     } else if (location.path) {
-      location.params = {}
+      location.params = {};
       for (var path in pathMap) {
         if (matchRoute(path, location.params, location.path)) {
           return _createRoute(pathMap[path], location, redirectedFrom)
@@ -2135,37 +2235,37 @@ function createMatcher (routes) {
     record,
     location
   ) {
-    var originalRedirect = record.redirect
+    var originalRedirect = record.redirect;
     var redirect = typeof originalRedirect === 'function'
         ? originalRedirect(createRoute(record, location))
-        : originalRedirect
+        : originalRedirect;
 
     if (typeof redirect === 'string') {
-      redirect = { path: redirect }
+      redirect = { path: redirect };
     }
 
     if (!redirect || typeof redirect !== 'object') {
       process.env.NODE_ENV !== 'production' && warn(
         false, ("invalid redirect option: " + (JSON.stringify(redirect)))
-      )
+      );
       return _createRoute(null, location)
     }
 
-    var re = redirect
+    var re = redirect;
     var name = re.name;
     var path = re.path;
     var query = location.query;
     var hash = location.hash;
     var params = location.params;
-    query = re.hasOwnProperty('query') ? re.query : query
-    hash = re.hasOwnProperty('hash') ? re.hash : hash
-    params = re.hasOwnProperty('params') ? re.params : params
+    query = re.hasOwnProperty('query') ? re.query : query;
+    hash = re.hasOwnProperty('hash') ? re.hash : hash;
+    params = re.hasOwnProperty('params') ? re.params : params;
 
     if (name) {
       // resolved named direct
-      var targetRecord = nameMap[name]
+      var targetRecord = nameMap[name];
       if (process.env.NODE_ENV !== 'production') {
-        assert(targetRecord, ("redirect failed: named route \"" + name + "\" not found."))
+        assert(targetRecord, ("redirect failed: named route \"" + name + "\" not found."));
       }
       return match({
         _normalized: true,
@@ -2176,9 +2276,9 @@ function createMatcher (routes) {
       }, undefined, location)
     } else if (path) {
       // 1. resolve relative redirect
-      var rawPath = resolveRecordPath(path, record)
+      var rawPath = resolveRecordPath(path, record);
       // 2. resolve params
-      var resolvedPath = fillParams(rawPath, params, ("redirect route with path \"" + rawPath + "\""))
+      var resolvedPath = fillParams(rawPath, params, ("redirect route with path \"" + rawPath + "\""));
       // 3. rematch with existing query and hash
       return match({
         _normalized: true,
@@ -2187,7 +2287,7 @@ function createMatcher (routes) {
         hash: hash
       }, undefined, location)
     } else {
-      warn(false, ("invalid redirect option: " + (JSON.stringify(redirect))))
+      warn(false, ("invalid redirect option: " + (JSON.stringify(redirect))));
       return _createRoute(null, location)
     }
   }
@@ -2197,15 +2297,15 @@ function createMatcher (routes) {
     location,
     matchAs
   ) {
-    var aliasedPath = fillParams(matchAs, location.params, ("aliased route with path \"" + matchAs + "\""))
+    var aliasedPath = fillParams(matchAs, location.params, ("aliased route with path \"" + matchAs + "\""));
     var aliasedMatch = match({
       _normalized: true,
       path: aliasedPath
-    })
+    });
     if (aliasedMatch) {
-      var matched = aliasedMatch.matched
-      var aliasedRecord = matched[matched.length - 1]
-      location.params = aliasedMatch.params
+      var matched = aliasedMatch.matched;
+      var aliasedRecord = matched[matched.length - 1];
+      location.params = aliasedMatch.params;
       return _createRoute(aliasedRecord, location)
     }
     return _createRoute(null, location)
@@ -2225,7 +2325,10 @@ function createMatcher (routes) {
     return createRoute(record, location, redirectedFrom)
   }
 
-  return match
+  return {
+    match: match,
+    addRoutes: addRoutes
+  }
 }
 
 function matchRoute (
@@ -2236,7 +2339,7 @@ function matchRoute (
   var ref = getRouteRegex(path);
   var regexp = ref.regexp;
   var keys = ref.keys;
-  var m = pathname.match(regexp)
+  var m = pathname.match(regexp);
 
   if (!m) {
     return false
@@ -2245,9 +2348,9 @@ function matchRoute (
   }
 
   for (var i = 1, len = m.length; i < len; ++i) {
-    var key = keys[i - 1]
-    var val = typeof m[i] === 'string' ? decodeURIComponent(m[i]) : m[i]
-    if (key) { params[key.name] = val }
+    var key = keys[i - 1];
+    var val = typeof m[i] === 'string' ? decodeURIComponent(m[i]) : m[i];
+    if (key) { params[key.name] = val; }
   }
 
   return true
@@ -2259,330 +2362,83 @@ function resolveRecordPath (path, record) {
 
 /*  */
 
-var inBrowser = typeof window !== 'undefined'
 
-var supportsHistory = inBrowser && (function () {
-  var ua = window.navigator.userAgent
+var positionStore = Object.create(null);
 
-  if (
-    (ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) &&
-    ua.indexOf('Mobile Safari') !== -1 &&
-    ua.indexOf('Chrome') === -1 &&
-    ua.indexOf('Windows Phone') === -1
-  ) {
-    return false
+function setupScroll () {
+  window.addEventListener('popstate', function (e) {
+    if (e.state && e.state.key) {
+      setStateKey(e.state.key);
+    }
+  });
+
+  window.addEventListener('scroll', saveScrollPosition);
+}
+
+function handleScroll (
+  router,
+  to,
+  from,
+  isPop
+) {
+  if (!router.app) {
+    return
   }
 
-  return window.history && 'pushState' in window.history
-})()
+  var behavior = router.options.scrollBehavior;
+  if (!behavior) {
+    return
+  }
 
-/*  */
+  if (process.env.NODE_ENV !== 'production') {
+    assert(typeof behavior === 'function', "scrollBehavior must be a function");
+  }
 
-function runQueue (queue, fn, cb) {
-  var step = function (index) {
-    if (index >= queue.length) {
-      cb()
-    } else {
-      if (queue[index]) {
-        fn(queue[index], function () {
-          step(index + 1)
-        })
-      } else {
-        step(index + 1)
+  // wait until re-render finishes before scrolling
+  router.app.$nextTick(function () {
+    var position = getScrollPosition();
+    var shouldScroll = behavior(to, from, isPop ? position : null);
+    if (!shouldScroll) {
+      return
+    }
+    var isObject = typeof shouldScroll === 'object';
+    if (isObject && typeof shouldScroll.selector === 'string') {
+      var el = document.querySelector(shouldScroll.selector);
+      if (el) {
+        position = getElementPosition(el);
+      } else if (isValidPosition(shouldScroll)) {
+        position = normalizePosition(shouldScroll);
       }
+    } else if (isObject && isValidPosition(shouldScroll)) {
+      position = normalizePosition(shouldScroll);
     }
-  }
-  step(0)
-}
 
-/*  */
-
-
-var History = function History (router, base) {
-  this.router = router
-  this.base = normalizeBase(base)
-  // start with a route object that stands for "nowhere"
-  this.current = START
-  this.pending = null
-};
-
-History.prototype.listen = function listen (cb) {
-  this.cb = cb
-};
-
-History.prototype.transitionTo = function transitionTo (location, onComplete, onAbort) {
-    var this$1 = this;
-
-  var route = this.router.match(location, this.current)
-  this.confirmTransition(route, function () {
-    this$1.updateRoute(route)
-    onComplete && onComplete(route)
-    this$1.ensureURL()
-  }, onAbort)
-};
-
-History.prototype.confirmTransition = function confirmTransition (route, onComplete, onAbort) {
-    var this$1 = this;
-
-  var current = this.current
-  var abort = function () { onAbort && onAbort() }
-  if (isSameRoute(route, current)) {
-    this.ensureURL()
-    return abort()
-  }
-
-  var ref = resolveQueue(this.current.matched, route.matched);
-    var deactivated = ref.deactivated;
-    var activated = ref.activated;
-
-  var queue = [].concat(
-    // in-component leave guards
-    extractLeaveGuards(deactivated),
-    // global before hooks
-    this.router.beforeHooks,
-    // enter guards
-    activated.map(function (m) { return m.beforeEnter; }),
-    // async components
-    resolveAsyncComponents(activated)
-  )
-
-  this.pending = route
-  var iterator = function (hook, next) {
-    if (this$1.pending !== route) {
-      return abort()
+    if (position) {
+      window.scrollTo(position.x, position.y);
     }
-    hook(route, current, function (to) {
-      if (to === false) {
-        // next(false) -> abort navigation, ensure current URL
-        this$1.ensureURL(true)
-        abort()
-      } else if (typeof to === 'string' || typeof to === 'object') {
-        // next('/') or next({ path: '/' }) -> redirect
-        (typeof to === 'object' && to.replace) ? this$1.replace(to) : this$1.push(to)
-        abort()
-      } else {
-        // confirm transition and pass on the value
-        next(to)
-      }
-    })
-  }
-
-  runQueue(queue, iterator, function () {
-    var postEnterCbs = []
-    var enterGuards = extractEnterGuards(activated, postEnterCbs, function () {
-      return this$1.current === route
-    })
-    // wait until async components are resolved before
-    // extracting in-component enter guards
-    runQueue(enterGuards, iterator, function () {
-      if (this$1.pending !== route) {
-        return abort()
-      }
-      this$1.pending = null
-      onComplete(route)
-      if (this$1.router.app) {
-        this$1.router.app.$nextTick(function () {
-          postEnterCbs.forEach(function (cb) { return cb(); })
-        })
-      }
-    })
-  })
-};
-
-History.prototype.updateRoute = function updateRoute (route) {
-  var prev = this.current
-  this.current = route
-  this.cb && this.cb(route)
-  this.router.afterHooks.forEach(function (hook) {
-    hook && hook(route, prev)
-  })
-};
-
-function normalizeBase (base) {
-  if (!base) {
-    if (inBrowser) {
-      // respect <base> tag
-      var baseEl = document.querySelector('base')
-      base = baseEl ? baseEl.getAttribute('href') : '/'
-    } else {
-      base = '/'
-    }
-  }
-  // make sure there's the starting slash
-  if (base.charAt(0) !== '/') {
-    base = '/' + base
-  }
-  // remove trailing slash
-  return base.replace(/\/$/, '')
+  });
 }
 
-function resolveQueue (
-  current,
-  next
-) {
-  var i
-  var max = Math.max(current.length, next.length)
-  for (i = 0; i < max; i++) {
-    if (current[i] !== next[i]) {
-      break
-    }
-  }
-  return {
-    activated: next.slice(i),
-    deactivated: current.slice(i)
+function saveScrollPosition () {
+  var key = getStateKey();
+  if (key) {
+    positionStore[key] = {
+      x: window.pageXOffset,
+      y: window.pageYOffset
+    };
   }
 }
 
-function extractGuard (
-  def,
-  key
-) {
-  if (typeof def !== 'function') {
-    // extend now so that global mixins are applied.
-    def = _Vue.extend(def)
+function getScrollPosition () {
+  var key = getStateKey();
+  if (key) {
+    return positionStore[key]
   }
-  return def.options[key]
-}
-
-function extractLeaveGuards (matched) {
-  return flatten(flatMapComponents(matched, function (def, instance) {
-    var guard = extractGuard(def, 'beforeRouteLeave')
-    if (guard) {
-      return Array.isArray(guard)
-        ? guard.map(function (guard) { return wrapLeaveGuard(guard, instance); })
-        : wrapLeaveGuard(guard, instance)
-    }
-  }).reverse())
-}
-
-function wrapLeaveGuard (
-  guard,
-  instance
-) {
-  return function routeLeaveGuard () {
-    return guard.apply(instance, arguments)
-  }
-}
-
-function extractEnterGuards (
-  matched,
-  cbs,
-  isValid
-) {
-  return flatten(flatMapComponents(matched, function (def, _, match, key) {
-    var guard = extractGuard(def, 'beforeRouteEnter')
-    if (guard) {
-      return Array.isArray(guard)
-        ? guard.map(function (guard) { return wrapEnterGuard(guard, cbs, match, key, isValid); })
-        : wrapEnterGuard(guard, cbs, match, key, isValid)
-    }
-  }))
-}
-
-function wrapEnterGuard (
-  guard,
-  cbs,
-  match,
-  key,
-  isValid
-) {
-  return function routeEnterGuard (to, from, next) {
-    return guard(to, from, function (cb) {
-      next(cb)
-      if (typeof cb === 'function') {
-        cbs.push(function () {
-          // #750
-          // if a router-view is wrapped with an out-in transition,
-          // the instance may not have been registered at this time.
-          // we will need to poll for registration until current route
-          // is no longer valid.
-          poll(cb, match.instances, key, isValid)
-        })
-      }
-    })
-  }
-}
-
-function poll (
-  cb, // somehow flow cannot infer this is a function
-  instances,
-  key,
-  isValid
-) {
-  if (instances[key]) {
-    cb(instances[key])
-  } else if (isValid()) {
-    setTimeout(function () {
-      poll(cb, instances, key, isValid)
-    }, 16)
-  }
-}
-
-function resolveAsyncComponents (matched) {
-  return flatMapComponents(matched, function (def, _, match, key) {
-    // if it's a function and doesn't have Vue options attached,
-    // assume it's an async component resolve function.
-    // we are not using Vue's default async resolving mechanism because
-    // we want to halt the navigation until the incoming component has been
-    // resolved.
-    if (typeof def === 'function' && !def.options) {
-      return function (to, from, next) {
-        var resolve = function (resolvedDef) {
-          match.components[key] = resolvedDef
-          next()
-        }
-
-        var reject = function (reason) {
-          warn(false, ("Failed to resolve async component " + key + ": " + reason))
-          next(false)
-        }
-
-        var res = def(resolve, reject)
-        if (res && typeof res.then === 'function') {
-          res.then(resolve, reject)
-        }
-      }
-    }
-  })
-}
-
-function flatMapComponents (
-  matched,
-  fn
-) {
-  return flatten(matched.map(function (m) {
-    return Object.keys(m.components).map(function (key) { return fn(
-      m.components[key],
-      m.instances[key],
-      m, key
-    ); })
-  }))
-}
-
-function flatten (arr) {
-  return Array.prototype.concat.apply([], arr)
-}
-
-/*  */
-
-var positionStore = Object.create(null)
-
-function saveScrollPosition (key) {
-  if (!key) { return }
-  positionStore[key] = {
-    x: window.pageXOffset,
-    y: window.pageYOffset
-  }
-}
-
-function getScrollPosition (key) {
-  if (!key) { return }
-  return positionStore[key]
 }
 
 function getElementPosition (el) {
-  var docRect = document.documentElement.getBoundingClientRect()
-  var elRect = el.getBoundingClientRect()
+  var docRect = document.documentElement.getBoundingClientRect();
+  var elRect = el.getBoundingClientRect();
   return {
     x: elRect.left - docRect.left,
     y: elRect.top - docRect.top
@@ -2606,278 +2462,618 @@ function isNumber (v) {
 
 /*  */
 
+var supportsPushState = inBrowser && (function () {
+  var ua = window.navigator.userAgent;
+
+  if (
+    (ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) &&
+    ua.indexOf('Mobile Safari') !== -1 &&
+    ua.indexOf('Chrome') === -1 &&
+    ua.indexOf('Windows Phone') === -1
+  ) {
+    return false
+  }
+
+  return window.history && 'pushState' in window.history
+})();
 
 // use User Timing api (if present) for more accurate key precision
 var Time = inBrowser && window.performance && window.performance.now
   ? window.performance
-  : Date
+  : Date;
 
-var genKey = function () { return String(Time.now()); }
-var _key = genKey()
+var _key = genKey();
 
-var HTML5History = (function (History) {
+function genKey () {
+  return Time.now().toFixed(3)
+}
+
+function getStateKey () {
+  return _key
+}
+
+function setStateKey (key) {
+  _key = key;
+}
+
+function pushState (url, replace) {
+  // try...catch the pushState call to get around Safari
+  // DOM Exception 18 where it limits to 100 pushState calls
+  var history = window.history;
+  try {
+    if (replace) {
+      history.replaceState({ key: _key }, '', url);
+    } else {
+      _key = genKey();
+      history.pushState({ key: _key }, '', url);
+    }
+    saveScrollPosition();
+  } catch (e) {
+    window.location[replace ? 'replace' : 'assign'](url);
+  }
+}
+
+function replaceState (url) {
+  pushState(url, true);
+}
+
+/*  */
+
+function runQueue (queue, fn, cb) {
+  var step = function (index) {
+    if (index >= queue.length) {
+      cb();
+    } else {
+      if (queue[index]) {
+        fn(queue[index], function () {
+          step(index + 1);
+        });
+      } else {
+        step(index + 1);
+      }
+    }
+  };
+  step(0);
+}
+
+/*  */
+
+
+var History = function History (router, base) {
+  this.router = router;
+  this.base = normalizeBase(base);
+  // start with a route object that stands for "nowhere"
+  this.current = START;
+  this.pending = null;
+  this.ready = false;
+  this.readyCbs = [];
+};
+
+History.prototype.listen = function listen (cb) {
+  this.cb = cb;
+};
+
+History.prototype.onReady = function onReady (cb) {
+  if (this.ready) {
+    cb();
+  } else {
+    this.readyCbs.push(cb);
+  }
+};
+
+History.prototype.transitionTo = function transitionTo (location, onComplete, onAbort) {
+    var this$1 = this;
+
+  var route = this.router.match(location, this.current);
+  this.confirmTransition(route, function () {
+    this$1.updateRoute(route);
+    onComplete && onComplete(route);
+    this$1.ensureURL();
+
+    // fire ready cbs once
+    if (!this$1.ready) {
+      this$1.ready = true;
+      this$1.readyCbs.forEach(function (cb) {
+        cb(route);
+      });
+    }
+  }, onAbort);
+};
+
+History.prototype.confirmTransition = function confirmTransition (route, onComplete, onAbort) {
+    var this$1 = this;
+
+  var current = this.current;
+  var abort = function () { onAbort && onAbort(); };
+  if (
+    isSameRoute(route, current) &&
+    // in the case the route map has been dynamically appended to
+    route.matched.length === current.matched.length
+  ) {
+    this.ensureURL();
+    return abort()
+  }
+
+  var ref = resolveQueue(this.current.matched, route.matched);
+    var updated = ref.updated;
+    var deactivated = ref.deactivated;
+    var activated = ref.activated;
+
+  var queue = [].concat(
+    // in-component leave guards
+    extractLeaveGuards(deactivated),
+    // global before hooks
+    this.router.beforeHooks,
+    // in-component update hooks
+    extractUpdateHooks(updated),
+    // in-config enter guards
+    activated.map(function (m) { return m.beforeEnter; }),
+    // async components
+    resolveAsyncComponents(activated)
+  );
+
+  this.pending = route;
+  var iterator = function (hook, next) {
+    if (this$1.pending !== route) {
+      return abort()
+    }
+    hook(route, current, function (to) {
+      if (to === false) {
+        // next(false) -> abort navigation, ensure current URL
+        this$1.ensureURL(true);
+        abort();
+      } else if (typeof to === 'string' || typeof to === 'object') {
+        // next('/') or next({ path: '/' }) -> redirect
+        (typeof to === 'object' && to.replace) ? this$1.replace(to) : this$1.push(to);
+        abort();
+      } else {
+        // confirm transition and pass on the value
+        next(to);
+      }
+    });
+  };
+
+  runQueue(queue, iterator, function () {
+    var postEnterCbs = [];
+    var isValid = function () { return this$1.current === route; };
+    var enterGuards = extractEnterGuards(activated, postEnterCbs, isValid);
+    // wait until async components are resolved before
+    // extracting in-component enter guards
+    runQueue(enterGuards, iterator, function () {
+      if (this$1.pending !== route) {
+        return abort()
+      }
+      this$1.pending = null;
+      onComplete(route);
+      if (this$1.router.app) {
+        this$1.router.app.$nextTick(function () {
+          postEnterCbs.forEach(function (cb) { return cb(); });
+        });
+      }
+    });
+  });
+};
+
+History.prototype.updateRoute = function updateRoute (route) {
+  var prev = this.current;
+  this.current = route;
+  this.cb && this.cb(route);
+  this.router.afterHooks.forEach(function (hook) {
+    hook && hook(route, prev);
+  });
+};
+
+function normalizeBase (base) {
+  if (!base) {
+    if (inBrowser) {
+      // respect <base> tag
+      var baseEl = document.querySelector('base');
+      base = baseEl ? baseEl.getAttribute('href') : '/';
+    } else {
+      base = '/';
+    }
+  }
+  // make sure there's the starting slash
+  if (base.charAt(0) !== '/') {
+    base = '/' + base;
+  }
+  // remove trailing slash
+  return base.replace(/\/$/, '')
+}
+
+function resolveQueue (
+  current,
+  next
+) {
+  var i;
+  var max = Math.max(current.length, next.length);
+  for (i = 0; i < max; i++) {
+    if (current[i] !== next[i]) {
+      break
+    }
+  }
+  return {
+    updated: next.slice(0, i),
+    activated: next.slice(i),
+    deactivated: current.slice(i)
+  }
+}
+
+function extractGuards (
+  records,
+  name,
+  bind,
+  reverse
+) {
+  var guards = flatMapComponents(records, function (def, instance, match, key) {
+    var guard = extractGuard(def, name);
+    if (guard) {
+      return Array.isArray(guard)
+        ? guard.map(function (guard) { return bind(guard, instance, match, key); })
+        : bind(guard, instance, match, key)
+    }
+  });
+  return flatten(reverse ? guards.reverse() : guards)
+}
+
+function extractGuard (
+  def,
+  key
+) {
+  if (typeof def !== 'function') {
+    // extend now so that global mixins are applied.
+    def = _Vue.extend(def);
+  }
+  return def.options[key]
+}
+
+function extractLeaveGuards (deactivated) {
+  return extractGuards(deactivated, 'beforeRouteLeave', bindGuard, true)
+}
+
+function extractUpdateHooks (updated) {
+  return extractGuards(updated, 'beforeRouteUpdate', bindGuard)
+}
+
+function bindGuard (guard, instance) {
+  return function boundRouteGuard () {
+    return guard.apply(instance, arguments)
+  }
+}
+
+function extractEnterGuards (
+  activated,
+  cbs,
+  isValid
+) {
+  return extractGuards(activated, 'beforeRouteEnter', function (guard, _, match, key) {
+    return bindEnterGuard(guard, match, key, cbs, isValid)
+  })
+}
+
+function bindEnterGuard (
+  guard,
+  match,
+  key,
+  cbs,
+  isValid
+) {
+  return function routeEnterGuard (to, from, next) {
+    return guard(to, from, function (cb) {
+      next(cb);
+      if (typeof cb === 'function') {
+        cbs.push(function () {
+          // #750
+          // if a router-view is wrapped with an out-in transition,
+          // the instance may not have been registered at this time.
+          // we will need to poll for registration until current route
+          // is no longer valid.
+          poll(cb, match.instances, key, isValid);
+        });
+      }
+    })
+  }
+}
+
+function poll (
+  cb, // somehow flow cannot infer this is a function
+  instances,
+  key,
+  isValid
+) {
+  if (instances[key]) {
+    cb(instances[key]);
+  } else if (isValid()) {
+    setTimeout(function () {
+      poll(cb, instances, key, isValid);
+    }, 16);
+  }
+}
+
+function resolveAsyncComponents (matched) {
+  return flatMapComponents(matched, function (def, _, match, key) {
+    // if it's a function and doesn't have Vue options attached,
+    // assume it's an async component resolve function.
+    // we are not using Vue's default async resolving mechanism because
+    // we want to halt the navigation until the incoming component has been
+    // resolved.
+    if (typeof def === 'function' && !def.options) {
+      return function (to, from, next) {
+        var resolve = once(function (resolvedDef) {
+          match.components[key] = resolvedDef;
+          next();
+        });
+
+        var reject = once(function (reason) {
+          warn(false, ("Failed to resolve async component " + key + ": " + reason));
+          next(false);
+        });
+
+        var res = def(resolve, reject);
+        if (res && typeof res.then === 'function') {
+          res.then(resolve, reject);
+        }
+      }
+    }
+  })
+}
+
+function flatMapComponents (
+  matched,
+  fn
+) {
+  return flatten(matched.map(function (m) {
+    return Object.keys(m.components).map(function (key) { return fn(
+      m.components[key],
+      m.instances[key],
+      m, key
+    ); })
+  }))
+}
+
+function flatten (arr) {
+  return Array.prototype.concat.apply([], arr)
+}
+
+// in Webpack 2, require.ensure now also returns a Promise
+// so the resolve/reject functions may get called an extra time
+// if the user uses an arrow function shorthand that happens to
+// return that Promise.
+function once (fn) {
+  var called = false;
+  return function () {
+    if (called) { return }
+    called = true;
+    return fn.apply(this, arguments)
+  }
+}
+
+/*  */
+
+
+var HTML5History = (function (History$$1) {
   function HTML5History (router, base) {
     var this$1 = this;
 
-    History.call(this, router, base)
+    History$$1.call(this, router, base);
 
-    var expectScroll = router.options.scrollBehavior
-    window.addEventListener('popstate', function (e) {
-      _key = e.state && e.state.key
-      var current = this$1.current
-      this$1.transitionTo(getLocation(this$1.base), function (next) {
-        if (expectScroll) {
-          this$1.handleScroll(next, current, true)
-        }
-      })
-    })
+    var expectScroll = router.options.scrollBehavior;
 
     if (expectScroll) {
-      window.addEventListener('scroll', function () {
-        saveScrollPosition(_key)
-      })
+      setupScroll();
     }
+
+    window.addEventListener('popstate', function (e) {
+      this$1.transitionTo(getLocation(this$1.base), function (route) {
+        if (expectScroll) {
+          handleScroll(router, route, this$1.current, true);
+        }
+      });
+    });
   }
 
-  if ( History ) HTML5History.__proto__ = History;
-  HTML5History.prototype = Object.create( History && History.prototype );
+  if ( History$$1 ) HTML5History.__proto__ = History$$1;
+  HTML5History.prototype = Object.create( History$$1 && History$$1.prototype );
   HTML5History.prototype.constructor = HTML5History;
 
   HTML5History.prototype.go = function go (n) {
-    window.history.go(n)
+    window.history.go(n);
   };
 
-  HTML5History.prototype.push = function push (location) {
+  HTML5History.prototype.push = function push (location, onComplete, onAbort) {
     var this$1 = this;
 
-    var current = this.current
     this.transitionTo(location, function (route) {
-      pushState(cleanPath(this$1.base + route.fullPath))
-      this$1.handleScroll(route, current, false)
-    })
+      pushState(cleanPath(this$1.base + route.fullPath));
+      handleScroll(this$1.router, route, this$1.current, false);
+      onComplete && onComplete(route);
+    }, onAbort);
   };
 
-  HTML5History.prototype.replace = function replace (location) {
+  HTML5History.prototype.replace = function replace (location, onComplete, onAbort) {
     var this$1 = this;
 
-    var current = this.current
     this.transitionTo(location, function (route) {
-      replaceState(cleanPath(this$1.base + route.fullPath))
-      this$1.handleScroll(route, current, false)
-    })
+      replaceState(cleanPath(this$1.base + route.fullPath));
+      handleScroll(this$1.router, route, this$1.current, false);
+      onComplete && onComplete(route);
+    }, onAbort);
   };
 
   HTML5History.prototype.ensureURL = function ensureURL (push) {
     if (getLocation(this.base) !== this.current.fullPath) {
-      var current = cleanPath(this.base + this.current.fullPath)
-      push ? pushState(current) : replaceState(current)
+      var current = cleanPath(this.base + this.current.fullPath);
+      push ? pushState(current) : replaceState(current);
     }
   };
 
-  HTML5History.prototype.handleScroll = function handleScroll (to, from, isPop) {
-    var router = this.router
-    if (!router.app) {
-      return
-    }
-
-    var behavior = router.options.scrollBehavior
-    if (!behavior) {
-      return
-    }
-    if (process.env.NODE_ENV !== 'production') {
-      assert(typeof behavior === 'function', "scrollBehavior must be a function")
-    }
-
-    // wait until re-render finishes before scrolling
-    router.app.$nextTick(function () {
-      var position = getScrollPosition(_key)
-      var shouldScroll = behavior(to, from, isPop ? position : null)
-      if (!shouldScroll) {
-        return
-      }
-      var isObject = typeof shouldScroll === 'object'
-      if (isObject && typeof shouldScroll.selector === 'string') {
-        var el = document.querySelector(shouldScroll.selector)
-        if (el) {
-          position = getElementPosition(el)
-        } else if (isValidPosition(shouldScroll)) {
-          position = normalizePosition(shouldScroll)
-        }
-      } else if (isObject && isValidPosition(shouldScroll)) {
-        position = normalizePosition(shouldScroll)
-      }
-
-      if (position) {
-        window.scrollTo(position.x, position.y)
-      }
-    })
+  HTML5History.prototype.getCurrentLocation = function getCurrentLocation () {
+    return getLocation(this.base)
   };
 
   return HTML5History;
 }(History));
 
 function getLocation (base) {
-  var path = window.location.pathname
+  var path = window.location.pathname;
   if (base && path.indexOf(base) === 0) {
-    path = path.slice(base.length)
+    path = path.slice(base.length);
   }
   return (path || '/') + window.location.search + window.location.hash
-}
-
-function pushState (url, replace) {
-  // try...catch the pushState call to get around Safari
-  // DOM Exception 18 where it limits to 100 pushState calls
-  var history = window.history
-  try {
-    if (replace) {
-      history.replaceState({ key: _key }, '', url)
-    } else {
-      _key = genKey()
-      history.pushState({ key: _key }, '', url)
-    }
-    saveScrollPosition(_key)
-  } catch (e) {
-    window.location[replace ? 'replace' : 'assign'](url)
-  }
-}
-
-function replaceState (url) {
-  pushState(url, true)
 }
 
 /*  */
 
 
-var HashHistory = (function (History) {
+var HashHistory = (function (History$$1) {
   function HashHistory (router, base, fallback) {
-    History.call(this, router, base)
+    History$$1.call(this, router, base);
     // check history fallback deeplinking
-    if (fallback && this.checkFallback()) {
+    if (fallback && checkFallback(this.base)) {
       return
     }
-    ensureSlash()
+    ensureSlash();
   }
 
-  if ( History ) HashHistory.__proto__ = History;
-  HashHistory.prototype = Object.create( History && History.prototype );
+  if ( History$$1 ) HashHistory.__proto__ = History$$1;
+  HashHistory.prototype = Object.create( History$$1 && History$$1.prototype );
   HashHistory.prototype.constructor = HashHistory;
 
-  HashHistory.prototype.checkFallback = function checkFallback () {
-    var location = getLocation(this.base)
-    if (!/^\/#/.test(location)) {
-      window.location.replace(
-        cleanPath(this.base + '/#' + location)
-      )
-      return true
-    }
+  // this is delayed until the app mounts
+  // to avoid the hashchange listener being fired too early
+  HashHistory.prototype.setupListeners = function setupListeners () {
+    var this$1 = this;
+
+    window.addEventListener('hashchange', function () {
+      if (!ensureSlash()) {
+        return
+      }
+      this$1.transitionTo(getHash(), function (route) {
+        replaceHash(route.fullPath);
+      });
+    });
   };
 
-  HashHistory.prototype.onHashChange = function onHashChange () {
-    if (!ensureSlash()) {
-      return
-    }
-    this.transitionTo(getHash(), function (route) {
-      replaceHash(route.fullPath)
-    })
-  };
-
-  HashHistory.prototype.push = function push (location) {
+  HashHistory.prototype.push = function push (location, onComplete, onAbort) {
     this.transitionTo(location, function (route) {
-      pushHash(route.fullPath)
-    })
+      pushHash(route.fullPath);
+      onComplete && onComplete(route);
+    }, onAbort);
   };
 
-  HashHistory.prototype.replace = function replace (location) {
+  HashHistory.prototype.replace = function replace (location, onComplete, onAbort) {
     this.transitionTo(location, function (route) {
-      replaceHash(route.fullPath)
-    })
+      replaceHash(route.fullPath);
+      onComplete && onComplete(route);
+    }, onAbort);
   };
 
   HashHistory.prototype.go = function go (n) {
-    window.history.go(n)
+    window.history.go(n);
   };
 
   HashHistory.prototype.ensureURL = function ensureURL (push) {
-    var current = this.current.fullPath
+    var current = this.current.fullPath;
     if (getHash() !== current) {
-      push ? pushHash(current) : replaceHash(current)
+      push ? pushHash(current) : replaceHash(current);
     }
+  };
+
+  HashHistory.prototype.getCurrentLocation = function getCurrentLocation () {
+    return getHash()
   };
 
   return HashHistory;
 }(History));
 
+function checkFallback (base) {
+  var location = getLocation(base);
+  if (!/^\/#/.test(location)) {
+    window.location.replace(
+      cleanPath(base + '/#' + location)
+    );
+    return true
+  }
+}
+
 function ensureSlash () {
-  var path = getHash()
+  var path = getHash();
   if (path.charAt(0) === '/') {
     return true
   }
-  replaceHash('/' + path)
+  replaceHash('/' + path);
   return false
 }
 
 function getHash () {
   // We can't use window.location.hash here because it's not
   // consistent across browsers - Firefox will pre-decode it!
-  var href = window.location.href
-  var index = href.indexOf('#')
+  var href = window.location.href;
+  var index = href.indexOf('#');
   return index === -1 ? '' : href.slice(index + 1)
 }
 
 function pushHash (path) {
-  window.location.hash = path
+  window.location.hash = path;
 }
 
 function replaceHash (path) {
-  var i = window.location.href.indexOf('#')
+  var i = window.location.href.indexOf('#');
   window.location.replace(
     window.location.href.slice(0, i >= 0 ? i : 0) + '#' + path
-  )
+  );
 }
 
 /*  */
 
 
-var AbstractHistory = (function (History) {
+var AbstractHistory = (function (History$$1) {
   function AbstractHistory (router, base) {
-    History.call(this, router, base)
-    this.stack = []
-    this.index = -1
+    History$$1.call(this, router, base);
+    this.stack = [];
+    this.index = -1;
   }
 
-  if ( History ) AbstractHistory.__proto__ = History;
-  AbstractHistory.prototype = Object.create( History && History.prototype );
+  if ( History$$1 ) AbstractHistory.__proto__ = History$$1;
+  AbstractHistory.prototype = Object.create( History$$1 && History$$1.prototype );
   AbstractHistory.prototype.constructor = AbstractHistory;
 
-  AbstractHistory.prototype.push = function push (location) {
+  AbstractHistory.prototype.push = function push (location, onComplete, onAbort) {
     var this$1 = this;
 
     this.transitionTo(location, function (route) {
-      this$1.stack = this$1.stack.slice(0, this$1.index + 1).concat(route)
-      this$1.index++
-    })
+      this$1.stack = this$1.stack.slice(0, this$1.index + 1).concat(route);
+      this$1.index++;
+      onComplete && onComplete(route);
+    }, onAbort);
   };
 
-  AbstractHistory.prototype.replace = function replace (location) {
+  AbstractHistory.prototype.replace = function replace (location, onComplete, onAbort) {
     var this$1 = this;
 
     this.transitionTo(location, function (route) {
-      this$1.stack = this$1.stack.slice(0, this$1.index).concat(route)
-    })
+      this$1.stack = this$1.stack.slice(0, this$1.index).concat(route);
+      onComplete && onComplete(route);
+    }, onAbort);
   };
 
   AbstractHistory.prototype.go = function go (n) {
     var this$1 = this;
 
-    var targetIndex = this.index + n
+    var targetIndex = this.index + n;
     if (targetIndex < 0 || targetIndex >= this.stack.length) {
       return
     }
-    var route = this.stack[targetIndex]
+    var route = this.stack[targetIndex];
     this.confirmTransition(route, function () {
-      this$1.index = targetIndex
-      this$1.updateRoute(route)
-    })
+      this$1.index = targetIndex;
+      this$1.updateRoute(route);
+    });
+  };
+
+  AbstractHistory.prototype.getCurrentLocation = function getCurrentLocation () {
+    var current = this.stack[this.stack.length - 1];
+    return current ? current.fullPath : '/'
   };
 
   AbstractHistory.prototype.ensureURL = function ensureURL () {
@@ -2892,38 +3088,49 @@ var AbstractHistory = (function (History) {
 var VueRouter = function VueRouter (options) {
   if ( options === void 0 ) options = {};
 
-  this.app = null
-  this.options = options
-  this.beforeHooks = []
-  this.afterHooks = []
-  this.match = createMatcher(options.routes || [])
+  this.app = null;
+  this.apps = [];
+  this.options = options;
+  this.beforeHooks = [];
+  this.afterHooks = [];
+  this.matcher = createMatcher(options.routes || []);
 
-  var mode = options.mode || 'hash'
-  this.fallback = mode === 'history' && !supportsHistory
+  var mode = options.mode || 'hash';
+  this.fallback = mode === 'history' && !supportsPushState;
   if (this.fallback) {
-    mode = 'hash'
+    mode = 'hash';
   }
   if (!inBrowser) {
-    mode = 'abstract'
+    mode = 'abstract';
   }
-  this.mode = mode
+  this.mode = mode;
 
   switch (mode) {
     case 'history':
-      this.history = new HTML5History(this, options.base)
+      this.history = new HTML5History(this, options.base);
       break
     case 'hash':
-      this.history = new HashHistory(this, options.base, this.fallback)
+      this.history = new HashHistory(this, options.base, this.fallback);
       break
     case 'abstract':
-      this.history = new AbstractHistory(this, options.base)
+      this.history = new AbstractHistory(this, options.base);
       break
     default:
-      process.env.NODE_ENV !== 'production' && assert(false, ("invalid mode: " + mode))
+      if (process.env.NODE_ENV !== 'production') {
+        assert(false, ("invalid mode: " + mode));
+      }
   }
 };
 
 var prototypeAccessors = { currentRoute: {} };
+
+VueRouter.prototype.match = function match (
+  raw,
+  current,
+  redirectedFrom
+) {
+  return this.matcher.match(raw, current, redirectedFrom)
+};
 
 prototypeAccessors.currentRoute.get = function () {
   return this.history && this.history.current
@@ -2936,60 +3143,75 @@ VueRouter.prototype.init = function init (app /* Vue component instance */) {
     install.installed,
     "not installed. Make sure to call `Vue.use(VueRouter)` " +
     "before creating root instance."
-  )
+  );
 
-  this.app = app
+  this.apps.push(app);
 
-  var history = this.history
+  // main app already initialized.
+  if (this.app) {
+    return
+  }
+
+  this.app = app;
+
+  var history = this.history;
 
   if (history instanceof HTML5History) {
-    history.transitionTo(getLocation(history.base))
+    history.transitionTo(history.getCurrentLocation());
   } else if (history instanceof HashHistory) {
     var setupHashListener = function () {
-      window.addEventListener('hashchange', function () {
-        history.onHashChange()
-      })
-    }
-    history.transitionTo(getHash(), setupHashListener, setupHashListener)
+      history.setupListeners();
+    };
+    history.transitionTo(
+      history.getCurrentLocation(),
+      setupHashListener,
+      setupHashListener
+    );
   }
 
   history.listen(function (route) {
-    this$1.app._route = route
-  })
+    this$1.apps.forEach(function (app) {
+      app._route = route;
+    });
+  });
 };
 
 VueRouter.prototype.beforeEach = function beforeEach (fn) {
-  this.beforeHooks.push(fn)
+  this.beforeHooks.push(fn);
 };
 
 VueRouter.prototype.afterEach = function afterEach (fn) {
-  this.afterHooks.push(fn)
+  this.afterHooks.push(fn);
 };
 
-VueRouter.prototype.push = function push (location) {
-  this.history.push(location)
+VueRouter.prototype.onReady = function onReady (cb) {
+  this.history.onReady(cb);
 };
 
-VueRouter.prototype.replace = function replace (location) {
-  this.history.replace(location)
+VueRouter.prototype.push = function push (location, onComplete, onAbort) {
+  this.history.push(location, onComplete, onAbort);
+};
+
+VueRouter.prototype.replace = function replace (location, onComplete, onAbort) {
+  this.history.replace(location, onComplete, onAbort);
 };
 
 VueRouter.prototype.go = function go (n) {
-  this.history.go(n)
+  this.history.go(n);
 };
 
 VueRouter.prototype.back = function back () {
-  this.go(-1)
+  this.go(-1);
 };
 
 VueRouter.prototype.forward = function forward () {
-  this.go(1)
+  this.go(1);
 };
 
 VueRouter.prototype.getMatchedComponents = function getMatchedComponents (to) {
   var route = to
-    ? this.resolve(to).resolved
-    : this.currentRoute
+    ? this.resolve(to).route
+    : this.currentRoute;
   if (!route) {
     return []
   }
@@ -3005,48 +3227,281 @@ VueRouter.prototype.resolve = function resolve (
   current,
   append
 ) {
-  var normalizedTo = normalizeLocation(to, current || this.history.current, append)
-  var resolved = this.match(normalizedTo, current)
-  var fullPath = resolved.redirectedFrom || resolved.fullPath
-  var base = this.history.base
-  var href = createHref(base, fullPath, this.mode)
+  var location = normalizeLocation(to, current || this.history.current, append);
+  var route = this.match(location, current);
+  var fullPath = route.redirectedFrom || route.fullPath;
+  var base = this.history.base;
+  var href = createHref(base, fullPath, this.mode);
   return {
-    normalizedTo: normalizedTo,
-    resolved: resolved,
-    href: href
+    location: location,
+    route: route,
+    href: href,
+    // for backwards compat
+    normalizedTo: location,
+    resolved: route
+  }
+};
+
+VueRouter.prototype.addRoutes = function addRoutes (routes) {
+  this.matcher.addRoutes(routes);
+  if (this.history.current !== START) {
+    this.history.transitionTo(this.history.getCurrentLocation());
   }
 };
 
 Object.defineProperties( VueRouter.prototype, prototypeAccessors );
 
 function createHref (base, fullPath, mode) {
-  var path = mode === 'hash' ? '#' + fullPath : fullPath
+  var path = mode === 'hash' ? '#' + fullPath : fullPath;
   return base ? cleanPath(base + '/' + path) : path
 }
 
-VueRouter.install = install
-VueRouter.version = '2.1.3'
+VueRouter.install = install;
+VueRouter.version = '2.2.0';
 
 if (inBrowser && window.Vue) {
-  window.Vue.use(VueRouter)
+  window.Vue.use(VueRouter);
 }
 
 module.exports = VueRouter;
+
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 9 */
+/* 10 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+var stylesInDom = {},
+	memoize = function(fn) {
+		var memo;
+		return function () {
+			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+			return memo;
+		};
+	},
+	isOldIE = memoize(function() {
+		return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+	}),
+	getHeadElement = memoize(function () {
+		return document.head || document.getElementsByTagName("head")[0];
+	}),
+	singletonElement = null,
+	singletonCounter = 0,
+	styleElementsInsertedAtTop = [];
+
+module.exports = function(list, options) {
+	if(typeof DEBUG !== "undefined" && DEBUG) {
+		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the bottom of <head>.
+	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
+
+	var styles = listToStyles(list);
+	addStylesToDom(styles, options);
+
+	return function update(newList) {
+		var mayRemove = [];
+		for(var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+		if(newList) {
+			var newStyles = listToStyles(newList);
+			addStylesToDom(newStyles, options);
+		}
+		for(var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+			if(domStyle.refs === 0) {
+				for(var j = 0; j < domStyle.parts.length; j++)
+					domStyle.parts[j]();
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+}
+
+function addStylesToDom(styles, options) {
+	for(var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+		if(domStyle) {
+			domStyle.refs++;
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles(list) {
+	var styles = [];
+	var newStyles = {};
+	for(var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+		if(!newStyles[id])
+			styles.push(newStyles[id] = {id: id, parts: [part]});
+		else
+			newStyles[id].parts.push(part);
+	}
+	return styles;
+}
+
+function insertStyleElement(options, styleElement) {
+	var head = getHeadElement();
+	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
+	if (options.insertAt === "top") {
+		if(!lastStyleElementInsertedAtTop) {
+			head.insertBefore(styleElement, head.firstChild);
+		} else if(lastStyleElementInsertedAtTop.nextSibling) {
+			head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			head.appendChild(styleElement);
+		}
+		styleElementsInsertedAtTop.push(styleElement);
+	} else if (options.insertAt === "bottom") {
+		head.appendChild(styleElement);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement(styleElement) {
+	styleElement.parentNode.removeChild(styleElement);
+	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
+	if(idx >= 0) {
+		styleElementsInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement(options) {
+	var styleElement = document.createElement("style");
+	styleElement.type = "text/css";
+	insertStyleElement(options, styleElement);
+	return styleElement;
+}
+
+function addStyle(obj, options) {
+	var styleElement, update, remove;
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+		styleElement = singletonElement || (singletonElement = createStyleElement(options));
+		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
+	} else {
+		styleElement = createStyleElement(options);
+		update = applyToTag.bind(null, styleElement);
+		remove = function() {
+			removeStyleElement(styleElement);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle(newObj) {
+		if(newObj) {
+			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
+				return;
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag(styleElement, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = styleElement.childNodes;
+		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
+		if (childNodes.length) {
+			styleElement.insertBefore(cssNode, childNodes[index]);
+		} else {
+			styleElement.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag(styleElement, obj) {
+	var css = obj.css;
+	var media = obj.media;
+	var sourceMap = obj.sourceMap;
+
+	if (media) {
+		styleElement.setAttribute("media", media);
+	}
+
+	if (sourceMap) {
+		// https://developer.chrome.com/devtools/docs/javascript-debugging
+		// this makes source maps inside style tags work properly in Chrome
+		css += '\n/*# sourceURL=' + sourceMap.sources[0] + ' */';
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	if (styleElement.styleSheet) {
+		styleElement.styleSheet.cssText = css;
+	} else {
+		while(styleElement.firstChild) {
+			styleElement.removeChild(styleElement.firstChild);
+		}
+		styleElement.appendChild(document.createTextNode(css));
+	}
+}
+
+
+/***/ }),
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bootstrap__ = __webpack_require__(34);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__routes__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_spinner_src_RiseLoader_vue__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__bootstrap__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__routes__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_spinner_src_RiseLoader_vue__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_spinner_src_RiseLoader_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vue_spinner_src_RiseLoader_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__libs_typewriter__ = __webpack_require__(35);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__libs_typewriter__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__libs_typewriter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__libs_typewriter__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_jump_js__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_jump_js__ = __webpack_require__(45);
 
 
 
@@ -3058,7 +3513,8 @@ var app = new Vue({
   el: '#app',
   data: function data() {
     return {
-      loading: true
+      loading: true,
+      mobileNav: false
     };
   },
 
@@ -3066,6 +3522,9 @@ var app = new Vue({
     PacmanLoader: __WEBPACK_IMPORTED_MODULE_2_vue_spinner_src_RiseLoader_vue___default.a
   },
   methods: {
+    toggleNav: function toggleNav() {
+      this.mobileNav = !this.mobileNav;
+    },
     jumpToSection: function jumpToSection() {
       setTimeout(function () {
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_jump_js__["a" /* default */])('.hero .hero-body.has-text-centered', {
@@ -3107,19 +3566,19 @@ var app = new Vue({
 })();
 
 /***/ }),
-/* 10 */
+/* 12 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(12);
+module.exports = __webpack_require__(14);
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3127,7 +3586,7 @@ module.exports = __webpack_require__(12);
 
 var utils = __webpack_require__(0);
 var bind = __webpack_require__(7);
-var Axios = __webpack_require__(14);
+var Axios = __webpack_require__(16);
 var defaults = __webpack_require__(2);
 
 /**
@@ -3162,14 +3621,14 @@ axios.create = function create(instanceConfig) {
 
 // Expose Cancel & CancelToken
 axios.Cancel = __webpack_require__(4);
-axios.CancelToken = __webpack_require__(13);
+axios.CancelToken = __webpack_require__(15);
 axios.isCancel = __webpack_require__(5);
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = __webpack_require__(28);
+axios.spread = __webpack_require__(30);
 
 module.exports = axios;
 
@@ -3178,7 +3637,7 @@ module.exports.default = axios;
 
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3242,7 +3701,7 @@ module.exports = CancelToken;
 
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3250,10 +3709,10 @@ module.exports = CancelToken;
 
 var defaults = __webpack_require__(2);
 var utils = __webpack_require__(0);
-var InterceptorManager = __webpack_require__(15);
-var dispatchRequest = __webpack_require__(16);
-var isAbsoluteURL = __webpack_require__(24);
-var combineURLs = __webpack_require__(22);
+var InterceptorManager = __webpack_require__(17);
+var dispatchRequest = __webpack_require__(18);
+var isAbsoluteURL = __webpack_require__(26);
+var combineURLs = __webpack_require__(24);
 
 /**
  * Create a new instance of Axios
@@ -3334,7 +3793,7 @@ module.exports = Axios;
 
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3393,14 +3852,14 @@ module.exports = InterceptorManager;
 
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(0);
-var transformData = __webpack_require__(19);
+var transformData = __webpack_require__(21);
 var isCancel = __webpack_require__(5);
 var defaults = __webpack_require__(2);
 
@@ -3479,7 +3938,7 @@ module.exports = function dispatchRequest(config) {
 
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3505,7 +3964,7 @@ module.exports = function enhanceError(error, config, code, response) {
 
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3537,7 +3996,7 @@ module.exports = function settle(resolve, reject, response) {
 
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3564,7 +4023,7 @@ module.exports = function transformData(data, headers, fns) {
 
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3607,7 +4066,7 @@ module.exports = btoa;
 
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3682,7 +4141,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3701,7 +4160,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3761,7 +4220,7 @@ module.exports = (
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3782,7 +4241,7 @@ module.exports = function isAbsoluteURL(url) {
 
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3857,7 +4316,7 @@ module.exports = (
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3876,7 +4335,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3920,7 +4379,7 @@ module.exports = function parseHeaders(headers) {
 
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3954,7 +4413,105 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 29 */
+/* 31 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lory_js__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lory_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lory_js__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = {
+
+  props: {
+    options: {
+      type: Object,
+      default: function _default() {
+        return {};
+      }
+    }
+  },
+
+  data: function data() {
+    return {
+      slider: null
+    };
+  },
+  mounted: function mounted() {
+    this.slider = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_lory_js__["lory"])(this.$el, this.options);
+  },
+  beforeDestroy: function beforeDestroy() {
+    this.slider.destroy();
+  }
+};
+
+/***/ }),
+/* 32 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = {
+  props: {
+    size: {
+      type: Number,
+      default: 50
+    },
+    color: {
+      type: String,
+      default: '#2E435A'
+    }
+  }
+};
+
+/***/ }),
+/* 33 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = {
+  props: {
+    size: {
+      type: Number,
+      default: 50
+    },
+    color: {
+      type: String,
+      default: '#2E435A'
+    }
+  }
+};
+
+/***/ }),
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4011,13 +4568,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 };
 
 /***/ }),
-/* 30 */,
-/* 31 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_lory__ = __webpack_require__(73);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_lory__ = __webpack_require__(63);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_lory___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue_lory__);
 //
 //
@@ -4166,9 +4722,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     // axios call here.
   },
   mounted: function mounted() {
-    window.setInterval(function () {
-      document.querySelector('#next').click();
-    }, 6000);
+    this.slider();
   },
 
   components: {
@@ -4176,17 +4730,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     Item: __WEBPACK_IMPORTED_MODULE_0_vue_lory__["Item"],
     Next: __WEBPACK_IMPORTED_MODULE_0_vue_lory__["Next"],
     Prev: __WEBPACK_IMPORTED_MODULE_0_vue_lory__["Prev"]
+  },
+  methods: {
+    slider: function slider() {
+      setInterval(function () {
+        if (self.$route.path == '/about') {
+          document.querySelector('#next').click();
+        }
+      }, 6000);
+    }
   }
 };
 
 /***/ }),
-/* 32 */
+/* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_Form__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_sweetalert__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__models_Form__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_sweetalert__ = __webpack_require__(66);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_sweetalert___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_sweetalert__);
 //
 //
@@ -4283,7 +4846,7 @@ Vue.use(__WEBPACK_IMPORTED_MODULE_1_vue_sweetalert___default.a);
 };
 
 /***/ }),
-/* 33 */
+/* 37 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4434,15 +4997,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 };
 
 /***/ }),
-/* 34 */
+/* 38 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(67);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_router__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_router__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue_router___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue_router__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_axios__);
 
 
@@ -4457,7 +5020,7 @@ window.axios.defaults.headers.common = {
 };
 
 /***/ }),
-/* 35 */
+/* 39 */
 /***/ (function(module, exports) {
 
 var TxtType = function TxtType(el, toRotate, period) {
@@ -4520,7 +5083,7 @@ window.onload = function () {
 };
 
 /***/ }),
-/* 36 */
+/* 40 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4612,11 +5175,11 @@ var Errors = function () {
 /* harmony default export */ __webpack_exports__["a"] = Errors;
 
 /***/ }),
-/* 37 */
+/* 41 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Errors__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Errors__ = __webpack_require__(40);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -4736,23 +5299,23 @@ var Form = function () {
 /* harmony default export */ __webpack_exports__["a"] = Form;
 
 /***/ }),
-/* 38 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_router__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_router__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue_router___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue_router__);
 
 
 var routes = [{
     path: '/',
-    component: __webpack_require__(46)
+    component: __webpack_require__(54)
 }, {
     path: '/about',
-    component: __webpack_require__(44)
+    component: __webpack_require__(52)
 }, {
     path: '/contact',
-    component: __webpack_require__(45)
+    component: __webpack_require__(53)
 }];
 
 /* harmony default export */ __webpack_exports__["a"] = new __WEBPACK_IMPORTED_MODULE_0_vue_router___default.a({
@@ -4761,10 +5324,10 @@ var routes = [{
 });
 
 /***/ }),
-/* 39 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(40)();
+exports = module.exports = __webpack_require__(8)();
 // imports
 
 
@@ -4775,77 +5338,1271 @@ exports.push([module.i, "\n.v-spinner\n{\n/*\t  font-size: 10px; \n\n    width: 
 
 
 /***/ }),
-/* 40 */
-/***/ (function(module, exports) {
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
 
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-// css base code, injected by the css-loader
-module.exports = function() {
-	var list = [];
+exports = module.exports = __webpack_require__(8)();
+// imports
 
-	// return the list of modules as css string
-	list.toString = function toString() {
-		var result = [];
-		for(var i = 0; i < this.length; i++) {
-			var item = this[i];
-			if(item[2]) {
-				result.push("@media " + item[2] + "{" + item[1] + "}");
-			} else {
-				result.push(item[1]);
-			}
-		}
-		return result.join("");
-	};
 
-	// import a list of modules into the list
-	list.i = function(modules, mediaQuery) {
-		if(typeof modules === "string")
-			modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for(var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if(typeof id === "number")
-				alreadyImportedModules[id] = true;
-		}
-		for(i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if(mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if(mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
+// module
+exports.push([module.i, "/**\n * (optional) define here the style definitions which should be applied on the slider container\n * e.g. width including further controls like arrows etc.\n */\n.slider .frame {\n  /**\n     * (optional) wrapper width, specifies width of the slider frame.\n     */\n  width: 100%;\n  position: relative;\n  font-size: 0;\n  line-height: 0;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.slider .slides {\n  width: 100%;\n  display: inline-block;\n}\n.slider li {\n  position: relative;\n  display: inline-block;\n  /**\n     * (optional) if the content inside the slide element has a defined size.\n     */\n  width: 100%;\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  font-size: 15px;\n  line-height: 30px;\n}\n.slider .prev, .slider .next {\n  position: absolute;\n  top: 50%;\n  margin-top: -25px;\n  display: block;\n  cursor: pointer;\n}\n.slider .next {\n  right: 0;\n}\n.slider .prev {\n  left: 0;\n}\n.slider .next svg, .slider .prev svg {\n  width: 25px;\n}\n.slider.js_rewind .frame li {\n  margin-right: 10px;\n}\n", ""]);
+
+// exports
 
 
 /***/ }),
-/* 41 */,
-/* 42 */
+/* 45 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+// Robert Penner's easeInOutQuad
+
+// find the rest of his easing functions here: http://robertpenner.com/easing/
+// find them exported for ES6 consumption here: https://github.com/jaxgeller/ez.js
+
+var easeInOutQuad = function easeInOutQuad(t, b, c, d) {
+  t /= d / 2;
+  if (t < 1) return c / 2 * t * t + b;
+  t--;
+  return -c / 2 * (t * (t - 2) - 1) + b;
+};
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+var jumper = function jumper() {
+  // private variable cache
+  // no variables are created during a jump, preventing memory leaks
+
+  var element = void 0; // element to scroll to                   (node)
+
+  var start = void 0; // where scroll starts                    (px)
+  var stop = void 0; // where scroll stops                     (px)
+
+  var offset = void 0; // adjustment from the stop position      (px)
+  var easing = void 0; // easing function                        (function)
+  var a11y = void 0; // accessibility support flag             (boolean)
+
+  var distance = void 0; // distance of scroll                     (px)
+  var duration = void 0; // scroll duration                        (ms)
+
+  var timeStart = void 0; // time scroll started                    (ms)
+  var timeElapsed = void 0; // time spent scrolling thus far          (ms)
+
+  var next = void 0; // next scroll position                   (px)
+
+  var callback = void 0; // to call when done scrolling            (function)
+
+  // scroll position helper
+
+  function location() {
+    return window.scrollY || window.pageYOffset;
+  }
+
+  // element offset helper
+
+  function top(element) {
+    return element.getBoundingClientRect().top + start;
+  }
+
+  // rAF loop helper
+
+  function loop(timeCurrent) {
+    // store time scroll started, if not started already
+    if (!timeStart) {
+      timeStart = timeCurrent;
+    }
+
+    // determine time spent scrolling so far
+    timeElapsed = timeCurrent - timeStart;
+
+    // calculate next scroll position
+    next = easing(timeElapsed, start, distance, duration);
+
+    // scroll to it
+    window.scrollTo(0, next);
+
+    // check progress
+    timeElapsed < duration ? window.requestAnimationFrame(loop) // continue scroll loop
+    : done(); // scrolling is done
+  }
+
+  // scroll finished helper
+
+  function done() {
+    // account for rAF time rounding inaccuracies
+    window.scrollTo(0, start + distance);
+
+    // if scrolling to an element, and accessibility is enabled
+    if (element && a11y) {
+      // add tabindex indicating programmatic focus
+      element.setAttribute('tabindex', '-1');
+
+      // focus the element
+      element.focus();
+    }
+
+    // if it exists, fire the callback
+    if (typeof callback === 'function') {
+      callback();
+    }
+
+    // reset time for next jump
+    timeStart = false;
+  }
+
+  // API
+
+  function jump(target) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    // resolve options, or use defaults
+    duration = options.duration || 1000;
+    offset = options.offset || 0;
+    callback = options.callback; // "undefined" is a suitable default, and won't be called
+    easing = options.easing || easeInOutQuad;
+    a11y = options.a11y || false;
+
+    // cache starting position
+    start = location();
+
+    // resolve target
+    switch (typeof target === 'undefined' ? 'undefined' : _typeof(target)) {
+      // scroll from current position
+      case 'number':
+        element = undefined; // no element to scroll to
+        a11y = false; // make sure accessibility is off
+        stop = start + target;
+        break;
+
+      // scroll to element (node)
+      // bounding rect is relative to the viewport
+      case 'object':
+        element = target;
+        stop = top(element);
+        break;
+
+      // scroll to element (selector)
+      // bounding rect is relative to the viewport
+      case 'string':
+        element = document.querySelector(target);
+        stop = top(element);
+        break;
+    }
+
+    // resolve scroll distance, accounting for offset
+    distance = stop - start + offset;
+
+    // resolve duration
+    switch (_typeof(options.duration)) {
+      // number in ms
+      case 'number':
+        duration = options.duration;
+        break;
+
+      // function passed the distance of the scroll
+      case 'function':
+        duration = options.duration(distance);
+        break;
+    }
+
+    // start the loop
+    window.requestAnimationFrame(loop);
+  }
+
+  // expose only the jump method
+  return jump;
+};
+
+// export singleton
+
+var singleton = jumper();
+
+/* harmony default export */ __webpack_exports__["a"] = singleton;
+
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(true)
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else {
+		var a = factory();
+		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
+	}
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(1);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /* globals jQuery */
+	
+	exports.lory = lory;
+	
+	var _detectPrefixes = __webpack_require__(2);
+	
+	var _detectPrefixes2 = _interopRequireDefault(_detectPrefixes);
+	
+	var _dispatchEvent = __webpack_require__(3);
+	
+	var _dispatchEvent2 = _interopRequireDefault(_dispatchEvent);
+	
+	var _defaults = __webpack_require__(5);
+	
+	var _defaults2 = _interopRequireDefault(_defaults);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var slice = Array.prototype.slice;
+	
+	function lory(slider, opts) {
+	    var position = void 0;
+	    var slidesWidth = void 0;
+	    var frameWidth = void 0;
+	    var slides = void 0;
+	
+	    /**
+	     * slider DOM elements
+	     */
+	    var frame = void 0;
+	    var slideContainer = void 0;
+	    var prevCtrl = void 0;
+	    var nextCtrl = void 0;
+	    var prefixes = void 0;
+	    var transitionEndCallback = void 0;
+	
+	    var index = 0;
+	    var options = {};
+	
+	    /**
+	     * if object is jQuery convert to native DOM element
+	     */
+	    if (typeof jQuery !== 'undefined' && slider instanceof jQuery) {
+	        slider = slider[0];
+	    }
+	
+	    /**
+	     * private
+	     * set active class to element which is the current slide
+	     */
+	    function setActiveElement(slides, currentIndex) {
+	        var _options = options;
+	        var classNameActiveSlide = _options.classNameActiveSlide;
+	
+	
+	        slides.forEach(function (element, index) {
+	            if (element.classList.contains(classNameActiveSlide)) {
+	                element.classList.remove(classNameActiveSlide);
+	            }
+	        });
+	
+	        slides[currentIndex].classList.add(classNameActiveSlide);
+	    }
+	
+	    /**
+	     * private
+	     * setupInfinite: function to setup if infinite is set
+	     *
+	     * @param  {array} slideArray
+	     * @return {array} array of updated slideContainer elements
+	     */
+	    function setupInfinite(slideArray) {
+	        var _options2 = options;
+	        var infinite = _options2.infinite;
+	
+	
+	        var front = slideArray.slice(0, infinite);
+	        var back = slideArray.slice(slideArray.length - infinite, slideArray.length);
+	
+	        front.forEach(function (element) {
+	            var cloned = element.cloneNode(true);
+	
+	            slideContainer.appendChild(cloned);
+	        });
+	
+	        back.reverse().forEach(function (element) {
+	            var cloned = element.cloneNode(true);
+	
+	            slideContainer.insertBefore(cloned, slideContainer.firstChild);
+	        });
+	
+	        slideContainer.addEventListener(prefixes.transitionEnd, onTransitionEnd);
+	
+	        return slice.call(slideContainer.children);
+	    }
+	
+	    /**
+	     * [dispatchSliderEvent description]
+	     * @return {[type]} [description]
+	     */
+	    function dispatchSliderEvent(phase, type, detail) {
+	        (0, _dispatchEvent2.default)(slider, phase + '.lory.' + type, detail);
+	    }
+	
+	    /**
+	     * translates to a given position in a given time in milliseconds
+	     *
+	     * @to        {number} number in pixels where to translate to
+	     * @duration  {number} time in milliseconds for the transistion
+	     * @ease      {string} easing css property
+	     */
+	    function translate(to, duration, ease) {
+	        var style = slideContainer && slideContainer.style;
+	
+	        if (style) {
+	            style[prefixes.transition + 'TimingFunction'] = ease;
+	            style[prefixes.transition + 'Duration'] = duration + 'ms';
+	
+	            if (prefixes.hasTranslate3d) {
+	                style[prefixes.transform] = 'translate3d(' + to + 'px, 0, 0)';
+	            } else {
+	                style[prefixes.transform] = 'translate(' + to + 'px, 0)';
+	            }
+	        }
+	    }
+	
+	    /**
+	     * slidefunction called by prev, next & touchend
+	     *
+	     * determine nextIndex and slide to next postion
+	     * under restrictions of the defined options
+	     *
+	     * @direction  {boolean}
+	     */
+	    function slide(nextIndex, direction) {
+	        var _options3 = options;
+	        var slideSpeed = _options3.slideSpeed;
+	        var slidesToScroll = _options3.slidesToScroll;
+	        var infinite = _options3.infinite;
+	        var rewind = _options3.rewind;
+	        var rewindSpeed = _options3.rewindSpeed;
+	        var ease = _options3.ease;
+	        var classNameActiveSlide = _options3.classNameActiveSlide;
+	
+	
+	        var duration = slideSpeed;
+	
+	        var nextSlide = direction ? index + 1 : index - 1;
+	        var maxOffset = Math.round(slidesWidth - frameWidth);
+	
+	        dispatchSliderEvent('before', 'slide', {
+	            index: index,
+	            nextSlide: nextSlide
+	        });
+	
+	        if (typeof nextIndex !== 'number') {
+	            if (direction) {
+	                nextIndex = index + slidesToScroll;
+	            } else {
+	                nextIndex = index - slidesToScroll;
+	            }
+	        }
+	
+	        nextIndex = Math.min(Math.max(nextIndex, 0), slides.length - 1);
+	
+	        if (infinite && direction === undefined) {
+	            nextIndex += infinite;
+	        }
+	
+	        var nextOffset = Math.min(Math.max(slides[nextIndex].offsetLeft * -1, maxOffset * -1), 0);
+	
+	        if (rewind && Math.abs(position.x) === maxOffset && direction) {
+	            nextOffset = 0;
+	            nextIndex = 0;
+	            duration = rewindSpeed;
+	        }
+	
+	        /**
+	         * translate to the nextOffset by a defined duration and ease function
+	         */
+	        translate(nextOffset, duration, ease);
+	
+	        /**
+	         * update the position with the next position
+	         */
+	        position.x = nextOffset;
+	
+	        /**
+	         * update the index with the nextIndex only if
+	         * the offset of the nextIndex is in the range of the maxOffset
+	         */
+	        if (slides[nextIndex].offsetLeft <= maxOffset) {
+	            index = nextIndex;
+	        }
+	
+	        if (infinite && (nextIndex === slides.length - infinite || nextIndex === 0)) {
+	            if (direction) {
+	                index = infinite;
+	            }
+	
+	            if (!direction) {
+	                index = slides.length - infinite * 2;
+	            }
+	
+	            position.x = slides[index].offsetLeft * -1;
+	
+	            transitionEndCallback = function transitionEndCallback() {
+	                translate(slides[index].offsetLeft * -1, 0, undefined);
+	            };
+	        }
+	
+	        if (classNameActiveSlide) {
+	            setActiveElement(slice.call(slides), index);
+	        }
+	
+	        dispatchSliderEvent('after', 'slide', {
+	            currentSlide: index
+	        });
+	    }
+	
+	    /**
+	     * public
+	     * setup function
+	     */
+	    function setup() {
+	        dispatchSliderEvent('before', 'init');
+	
+	        prefixes = (0, _detectPrefixes2.default)();
+	        options = _extends({}, _defaults2.default, opts);
+	
+	        var _options4 = options;
+	        var classNameFrame = _options4.classNameFrame;
+	        var classNameSlideContainer = _options4.classNameSlideContainer;
+	        var classNamePrevCtrl = _options4.classNamePrevCtrl;
+	        var classNameNextCtrl = _options4.classNameNextCtrl;
+	        var enableMouseEvents = _options4.enableMouseEvents;
+	        var classNameActiveSlide = _options4.classNameActiveSlide;
+	
+	
+	        frame = slider.getElementsByClassName(classNameFrame)[0];
+	        slideContainer = frame.getElementsByClassName(classNameSlideContainer)[0];
+	        prevCtrl = slider.getElementsByClassName(classNamePrevCtrl)[0];
+	        nextCtrl = slider.getElementsByClassName(classNameNextCtrl)[0];
+	
+	        position = {
+	            x: slideContainer.offsetLeft,
+	            y: slideContainer.offsetTop
+	        };
+	
+	        if (options.infinite) {
+	            slides = setupInfinite(slice.call(slideContainer.children));
+	        } else {
+	            slides = slice.call(slideContainer.children);
+	        }
+	
+	        reset();
+	
+	        if (classNameActiveSlide) {
+	            setActiveElement(slides, index);
+	        }
+	
+	        if (prevCtrl && nextCtrl) {
+	            prevCtrl.addEventListener('click', prev);
+	            nextCtrl.addEventListener('click', next);
+	        }
+	
+	        frame.addEventListener('touchstart', onTouchstart);
+	
+	        if (enableMouseEvents) {
+	            frame.addEventListener('mousedown', onTouchstart);
+	            frame.addEventListener('click', onClick);
+	        }
+	
+	        options.window.addEventListener('resize', onResize);
+	
+	        dispatchSliderEvent('after', 'init');
+	    }
+	
+	    /**
+	     * public
+	     * reset function: called on resize
+	     */
+	    function reset() {
+	        var _options5 = options;
+	        var infinite = _options5.infinite;
+	        var ease = _options5.ease;
+	        var rewindSpeed = _options5.rewindSpeed;
+	        var rewindOnResize = _options5.rewindOnResize;
+	        var classNameActiveSlide = _options5.classNameActiveSlide;
+	
+	
+	        slidesWidth = slideContainer.getBoundingClientRect().width || slideContainer.offsetWidth;
+	        frameWidth = frame.getBoundingClientRect().width || frame.offsetWidth;
+	
+	        if (frameWidth === slidesWidth) {
+	            slidesWidth = slides.reduce(function (previousValue, slide) {
+	                return previousValue + slide.getBoundingClientRect().width || slide.offsetWidth;
+	            }, 0);
+	        }
+	
+	        if (rewindOnResize) {
+	            index = 0;
+	        } else {
+	            ease = null;
+	            rewindSpeed = 0;
+	        }
+	
+	        if (infinite) {
+	            translate(slides[index + infinite].offsetLeft * -1, 0, null);
+	
+	            index = index + infinite;
+	            position.x = slides[index].offsetLeft * -1;
+	        } else {
+	            translate(slides[index].offsetLeft * -1, rewindSpeed, ease);
+	            position.x = slides[index].offsetLeft * -1;
+	        }
+	
+	        if (classNameActiveSlide) {
+	            setActiveElement(slice.call(slides), index);
+	        }
+	    }
+	
+	    /**
+	     * public
+	     * slideTo: called on clickhandler
+	     */
+	    function slideTo(index) {
+	        slide(index);
+	    }
+	
+	    /**
+	     * public
+	     * returnIndex function: called on clickhandler
+	     */
+	    function returnIndex() {
+	        return index - options.infinite || 0;
+	    }
+	
+	    /**
+	     * public
+	     * prev function: called on clickhandler
+	     */
+	    function prev() {
+	        slide(false, false);
+	    }
+	
+	    /**
+	     * public
+	     * next function: called on clickhandler
+	     */
+	    function next() {
+	        slide(false, true);
+	    }
+	
+	    /**
+	     * public
+	     * destroy function: called to gracefully destroy the lory instance
+	     */
+	    function destroy() {
+	        dispatchSliderEvent('before', 'destroy');
+	
+	        // remove event listeners
+	        frame.removeEventListener(prefixes.transitionEnd, onTransitionEnd);
+	        frame.removeEventListener('touchstart', onTouchstart);
+	        frame.removeEventListener('touchmove', onTouchmove);
+	        frame.removeEventListener('touchend', onTouchend);
+	        frame.removeEventListener('mousemove', onTouchmove);
+	        frame.removeEventListener('mousedown', onTouchstart);
+	        frame.removeEventListener('mouseup', onTouchend);
+	        frame.removeEventListener('mouseleave', onTouchend);
+	        frame.removeEventListener('click', onClick);
+	
+	        options.window.removeEventListener('resize', onResize);
+	
+	        if (prevCtrl) {
+	            prevCtrl.removeEventListener('click', prev);
+	        }
+	
+	        if (nextCtrl) {
+	            nextCtrl.removeEventListener('click', next);
+	        }
+	
+	        // remove cloned slides if infinite is set
+	        if (options.infinite) {
+	            Array.apply(null, Array(options.infinite)).forEach(function () {
+	                slideContainer.removeChild(slideContainer.firstChild);
+	                slideContainer.removeChild(slideContainer.lastChild);
+	            });
+	        }
+	
+	        dispatchSliderEvent('after', 'destroy');
+	    }
+	
+	    // event handling
+	
+	    var touchOffset = void 0;
+	    var delta = void 0;
+	    var isScrolling = void 0;
+	
+	    function onTransitionEnd() {
+	        if (transitionEndCallback) {
+	            transitionEndCallback();
+	
+	            transitionEndCallback = undefined;
+	        }
+	    }
+	
+	    function onTouchstart(event) {
+	        var _options6 = options;
+	        var enableMouseEvents = _options6.enableMouseEvents;
+	
+	        var touches = event.touches ? event.touches[0] : event;
+	
+	        if (enableMouseEvents) {
+	            frame.addEventListener('mousemove', onTouchmove);
+	            frame.addEventListener('mouseup', onTouchend);
+	            frame.addEventListener('mouseleave', onTouchend);
+	        }
+	
+	        frame.addEventListener('touchmove', onTouchmove);
+	        frame.addEventListener('touchend', onTouchend);
+	
+	        var pageX = touches.pageX;
+	        var pageY = touches.pageY;
+	
+	
+	        touchOffset = {
+	            x: pageX,
+	            y: pageY,
+	            time: Date.now()
+	        };
+	
+	        isScrolling = undefined;
+	
+	        delta = {};
+	
+	        dispatchSliderEvent('on', 'touchstart', {
+	            event: event
+	        });
+	    }
+	
+	    function onTouchmove(event) {
+	        var touches = event.touches ? event.touches[0] : event;
+	        var pageX = touches.pageX;
+	        var pageY = touches.pageY;
+	
+	
+	        delta = {
+	            x: pageX - touchOffset.x,
+	            y: pageY - touchOffset.y
+	        };
+	
+	        if (typeof isScrolling === 'undefined') {
+	            isScrolling = !!(isScrolling || Math.abs(delta.x) < Math.abs(delta.y));
+	        }
+	
+	        if (!isScrolling && touchOffset) {
+	            event.preventDefault();
+	            translate(position.x + delta.x, 0, null);
+	        }
+	
+	        // may be
+	        dispatchSliderEvent('on', 'touchmove', {
+	            event: event
+	        });
+	    }
+	
+	    function onTouchend(event) {
+	        /**
+	         * time between touchstart and touchend in milliseconds
+	         * @duration {number}
+	         */
+	        var duration = touchOffset ? Date.now() - touchOffset.time : undefined;
+	
+	        /**
+	         * is valid if:
+	         *
+	         * -> swipe attempt time is over 300 ms
+	         * and
+	         * -> swipe distance is greater than 25px
+	         * or
+	         * -> swipe distance is more then a third of the swipe area
+	         *
+	         * @isValidSlide {Boolean}
+	         */
+	        var isValid = Number(duration) < 300 && Math.abs(delta.x) > 25 || Math.abs(delta.x) > frameWidth / 3;
+	
+	        /**
+	         * is out of bounds if:
+	         *
+	         * -> index is 0 and delta x is greater than 0
+	         * or
+	         * -> index is the last slide and delta is smaller than 0
+	         *
+	         * @isOutOfBounds {Boolean}
+	         */
+	        var isOutOfBounds = !index && delta.x > 0 || index === slides.length - 1 && delta.x < 0;
+	
+	        var direction = delta.x < 0;
+	
+	        if (!isScrolling) {
+	            if (isValid && !isOutOfBounds) {
+	                slide(false, direction);
+	            } else {
+	                translate(position.x, options.snapBackSpeed);
+	            }
+	        }
+	
+	        touchOffset = undefined;
+	
+	        /**
+	         * remove eventlisteners after swipe attempt
+	         */
+	        frame.removeEventListener('touchmove', onTouchmove);
+	        frame.removeEventListener('touchend', onTouchend);
+	        frame.removeEventListener('mousemove', onTouchmove);
+	        frame.removeEventListener('mouseup', onTouchend);
+	        frame.removeEventListener('mouseleave', onTouchend);
+	
+	        dispatchSliderEvent('on', 'touchend', {
+	            event: event
+	        });
+	    }
+	
+	    function onClick(event) {
+	        if (delta.x) {
+	            event.preventDefault();
+	        }
+	    }
+	
+	    function onResize(event) {
+	        reset();
+	
+	        dispatchSliderEvent('on', 'resize', {
+	            event: event
+	        });
+	    }
+	
+	    // trigger initial setup
+	    setup();
+	
+	    // expose public api
+	    return {
+	        setup: setup,
+	        reset: reset,
+	        slideTo: slideTo,
+	        returnIndex: returnIndex,
+	        prev: prev,
+	        next: next,
+	        destroy: destroy
+	    };
+	}
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = detectPrefixes;
+	/**
+	 * Detecting prefixes for saving time and bytes
+	 */
+	function detectPrefixes() {
+	    var transform = void 0;
+	    var transition = void 0;
+	    var transitionEnd = void 0;
+	    var hasTranslate3d = void 0;
+	
+	    (function () {
+	        var el = document.createElement('_');
+	        var style = el.style;
+	
+	        var prop = void 0;
+	
+	        if (style[prop = 'webkitTransition'] === '') {
+	            transitionEnd = 'webkitTransitionEnd';
+	            transition = prop;
+	        }
+	
+	        if (style[prop = 'transition'] === '') {
+	            transitionEnd = 'transitionend';
+	            transition = prop;
+	        }
+	
+	        if (style[prop = 'webkitTransform'] === '') {
+	            transform = prop;
+	        }
+	
+	        if (style[prop = 'msTransform'] === '') {
+	            transform = prop;
+	        }
+	
+	        if (style[prop = 'transform'] === '') {
+	            transform = prop;
+	        }
+	
+	        document.body.insertBefore(el, null);
+	        style[transform] = 'translate3d(0, 0, 0)';
+	        hasTranslate3d = !!global.getComputedStyle(el).getPropertyValue(transform);
+	        document.body.removeChild(el);
+	    })();
+	
+	    return {
+	        transform: transform,
+	        transition: transition,
+	        transitionEnd: transitionEnd,
+	        hasTranslate3d: hasTranslate3d
+	    };
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = dispatchEvent;
+	
+	var _customEvent = __webpack_require__(4);
+	
+	var _customEvent2 = _interopRequireDefault(_customEvent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * dispatch custom events
+	 *
+	 * @param  {element} el         slideshow element
+	 * @param  {string}  type       custom event name
+	 * @param  {object}  detail     custom detail information
+	 */
+	function dispatchEvent(target, type, detail) {
+	    var event = new _customEvent2.default(type, {
+	        bubbles: true,
+	        cancelable: true,
+	        detail: detail
+	    });
+	
+	    target.dispatchEvent(event);
+	}
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {
+	var NativeCustomEvent = global.CustomEvent;
+	
+	function useNative () {
+	  try {
+	    var p = new NativeCustomEvent('cat', { detail: { foo: 'bar' } });
+	    return  'cat' === p.type && 'bar' === p.detail.foo;
+	  } catch (e) {
+	  }
+	  return false;
+	}
+	
+	/**
+	 * Cross-browser `CustomEvent` constructor.
+	 *
+	 * https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent.CustomEvent
+	 *
+	 * @public
+	 */
+	
+	module.exports = useNative() ? NativeCustomEvent :
+	
+	// IE >= 9
+	'function' === typeof document.createEvent ? function CustomEvent (type, params) {
+	  var e = document.createEvent('CustomEvent');
+	  if (params) {
+	    e.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
+	  } else {
+	    e.initCustomEvent(type, false, false, void 0);
+	  }
+	  return e;
+	} :
+	
+	// IE <= 8
+	function CustomEvent (type, params) {
+	  var e = document.createEventObject();
+	  e.type = type;
+	  if (params) {
+	    e.bubbles = Boolean(params.bubbles);
+	    e.cancelable = Boolean(params.cancelable);
+	    e.detail = params.detail;
+	  } else {
+	    e.bubbles = false;
+	    e.cancelable = false;
+	    e.detail = void 0;
+	  }
+	  return e;
+	}
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = {
+	  /**
+	   * slides scrolled at once
+	   * @slidesToScroll {Number}
+	   */
+	  slidesToScroll: 1,
+	
+	  /**
+	   * time in milliseconds for the animation of a valid slide attempt
+	   * @slideSpeed {Number}
+	   */
+	  slideSpeed: 300,
+	
+	  /**
+	   * time in milliseconds for the animation of the rewind after the last slide
+	   * @rewindSpeed {Number}
+	   */
+	  rewindSpeed: 600,
+	
+	  /**
+	   * time for the snapBack of the slider if the slide attempt was not valid
+	   * @snapBackSpeed {Number}
+	   */
+	  snapBackSpeed: 200,
+	
+	  /**
+	   * Basic easing functions: https://developer.mozilla.org/de/docs/Web/CSS/transition-timing-function
+	   * cubic bezier easing functions: http://easings.net/de
+	   * @ease {String}
+	   */
+	  ease: 'ease',
+	
+	  /**
+	   * if slider reached the last slide, with next click the slider goes back to the startindex.
+	   * use infinite or rewind, not both
+	   * @rewind {Boolean}
+	   */
+	  rewind: false,
+	
+	  /**
+	   * number of visible slides or false
+	   * use infinite or rewind, not both
+	   * @infinite {number}
+	   */
+	  infinite: false,
+	
+	  /**
+	   * class name for slider frame
+	   * @classNameFrame {string}
+	   */
+	  classNameFrame: 'js_frame',
+	
+	  /**
+	   * class name for slides container
+	   * @classNameSlideContainer {string}
+	   */
+	  classNameSlideContainer: 'js_slides',
+	
+	  /**
+	   * class name for slider prev control
+	   * @classNamePrevCtrl {string}
+	   */
+	  classNamePrevCtrl: 'js_prev',
+	
+	  /**
+	   * class name for slider next control
+	   * @classNameNextCtrl {string}
+	   */
+	  classNameNextCtrl: 'js_next',
+	
+	  /**
+	   * class name for current active slide
+	   * if emptyString then no class is set
+	   * @classNameActiveSlide {string}
+	   */
+	  classNameActiveSlide: 'active',
+	
+	  /**
+	   * enables mouse events for swiping on desktop devices
+	   * @enableMouseEvents {boolean}
+	   */
+	  enableMouseEvents: false,
+	
+	  /**
+	   * window instance
+	   * @window {object}
+	   */
+	  window: window,
+	
+	  /**
+	   * If false, slides lory to the first slide on window resize.
+	   * @rewindOnResize {boolean}
+	   */
+	  rewindOnResize: true
+	};
+
+/***/ }
+/******/ ])
+});
+;
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __vue_exports__, __vue_options__
+var __vue_styles__ = {}
+
+/* template */
+var __vue_template__ = __webpack_require__(55)
+__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+if (
+  typeof __vue_exports__.default === "object" ||
+  typeof __vue_exports__.default === "function"
+) {
+if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+__vue_options__ = __vue_exports__ = __vue_exports__.default
+}
+if (typeof __vue_options__ === "function") {
+  __vue_options__ = __vue_options__.options
+}
+__vue_options__.__file = "/Users/fdbp/Sites/fredesk-v2/node_modules/vue-lory/src/Item.vue"
+__vue_options__.render = __vue_template__.render
+__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-1eee1621", __vue_options__)
+  } else {
+    hotAPI.reload("data-v-1eee1621", __vue_options__)
+  }
+})()}
+if (__vue_options__.functional) {console.error("[vue-loader] Item.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+module.exports = __vue_exports__
+
+
+/***/ }),
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* styles */
-__webpack_require__(52)
+__webpack_require__(65)
 
 /* script */
-__vue_exports__ = __webpack_require__(29)
+__vue_exports__ = __webpack_require__(31)
 
 /* template */
-var __vue_template__ = __webpack_require__(49)
+var __vue_template__ = __webpack_require__(60)
+__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+if (
+  typeof __vue_exports__.default === "object" ||
+  typeof __vue_exports__.default === "function"
+) {
+if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+__vue_options__ = __vue_exports__ = __vue_exports__.default
+}
+if (typeof __vue_options__ === "function") {
+  __vue_options__ = __vue_options__.options
+}
+__vue_options__.__file = "/Users/fdbp/Sites/fredesk-v2/node_modules/vue-lory/src/Lory.vue"
+__vue_options__.render = __vue_template__.render
+__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-64ea8e98", __vue_options__)
+  } else {
+    hotAPI.reload("data-v-64ea8e98", __vue_options__)
+  }
+})()}
+if (__vue_options__.functional) {console.error("[vue-loader] Lory.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+module.exports = __vue_exports__
+
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __vue_exports__, __vue_options__
+var __vue_styles__ = {}
+
+/* script */
+__vue_exports__ = __webpack_require__(32)
+
+/* template */
+var __vue_template__ = __webpack_require__(57)
+__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+if (
+  typeof __vue_exports__.default === "object" ||
+  typeof __vue_exports__.default === "function"
+) {
+if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+__vue_options__ = __vue_exports__ = __vue_exports__.default
+}
+if (typeof __vue_options__ === "function") {
+  __vue_options__ = __vue_options__.options
+}
+__vue_options__.__file = "/Users/fdbp/Sites/fredesk-v2/node_modules/vue-lory/src/Next.vue"
+__vue_options__.render = __vue_template__.render
+__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-2da53601", __vue_options__)
+  } else {
+    hotAPI.reload("data-v-2da53601", __vue_options__)
+  }
+})()}
+if (__vue_options__.functional) {console.error("[vue-loader] Next.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+module.exports = __vue_exports__
+
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __vue_exports__, __vue_options__
+var __vue_styles__ = {}
+
+/* script */
+__vue_exports__ = __webpack_require__(33)
+
+/* template */
+var __vue_template__ = __webpack_require__(62)
+__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+if (
+  typeof __vue_exports__.default === "object" ||
+  typeof __vue_exports__.default === "function"
+) {
+if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+__vue_options__ = __vue_exports__ = __vue_exports__.default
+}
+if (typeof __vue_options__ === "function") {
+  __vue_options__ = __vue_options__.options
+}
+__vue_options__.__file = "/Users/fdbp/Sites/fredesk-v2/node_modules/vue-lory/src/Prev.vue"
+__vue_options__.render = __vue_template__.render
+__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-e66ea57e", __vue_options__)
+  } else {
+    hotAPI.reload("data-v-e66ea57e", __vue_options__)
+  }
+})()}
+if (__vue_options__.functional) {console.error("[vue-loader] Prev.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+
+module.exports = __vue_exports__
+
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __vue_exports__, __vue_options__
+var __vue_styles__ = {}
+
+/* styles */
+__webpack_require__(64)
+
+/* script */
+__vue_exports__ = __webpack_require__(34)
+
+/* template */
+var __vue_template__ = __webpack_require__(59)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -4879,18 +6636,17 @@ module.exports = __vue_exports__
 
 
 /***/ }),
-/* 43 */,
-/* 44 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* script */
-__vue_exports__ = __webpack_require__(31)
+__vue_exports__ = __webpack_require__(35)
 
 /* template */
-var __vue_template__ = __webpack_require__(47)
+var __vue_template__ = __webpack_require__(56)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -4924,17 +6680,17 @@ module.exports = __vue_exports__
 
 
 /***/ }),
-/* 45 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* script */
-__vue_exports__ = __webpack_require__(32)
+__vue_exports__ = __webpack_require__(36)
 
 /* template */
-var __vue_template__ = __webpack_require__(50)
+var __vue_template__ = __webpack_require__(61)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -4968,17 +6724,17 @@ module.exports = __vue_exports__
 
 
 /***/ }),
-/* 46 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __vue_exports__, __vue_options__
 var __vue_styles__ = {}
 
 /* script */
-__vue_exports__ = __webpack_require__(33)
+__vue_exports__ = __webpack_require__(37)
 
 /* template */
-var __vue_template__ = __webpack_require__(48)
+var __vue_template__ = __webpack_require__(58)
 __vue_options__ = __vue_exports__ = __vue_exports__ || {}
 if (
   typeof __vue_exports__.default === "object" ||
@@ -5012,7 +6768,24 @@ module.exports = __vue_exports__
 
 
 /***/ }),
-/* 47 */
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('li', {
+    staticClass: "js_slide"
+  }, [_vm._t("default")], 2)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-1eee1621", module.exports)
+  }
+}
+
+/***/ }),
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -5267,7 +7040,36 @@ if (false) {
 }
 
 /***/ }),
-/* 48 */
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('span', {
+    staticClass: "js_next next"
+  }, [_c('svg', {
+    attrs: {
+      "xmlns": "http://www.w3.org/2000/svg",
+      "width": _vm.size,
+      "height": _vm.size,
+      "viewBox": "0 0 501.5 501.5"
+    }
+  }, [_c('g', [_c('path', {
+    attrs: {
+      "fill": _vm.color,
+      "d": "M199.33 410.622l-55.77-55.508L247.425 250.75 143.56 146.384l55.77-55.507L358.44 250.75z"
+    }
+  })])])])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-2da53601", module.exports)
+  }
+}
+
+/***/ }),
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -5474,7 +7276,7 @@ if (false) {
 }
 
 /***/ }),
-/* 49 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -5512,7 +7314,28 @@ if (false) {
 }
 
 /***/ }),
-/* 50 */
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "slider js_slider"
+  }, [_c('div', {
+    staticClass: "frame js_frame"
+  }, [_c('ul', {
+    staticClass: "slides js_slides"
+  }, [_vm._t("default")], 2)]), _vm._v(" "), _vm._t("actions")], 2)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-64ea8e98", module.exports)
+  }
+}
+
+/***/ }),
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -5671,238 +7494,55 @@ if (false) {
 }
 
 /***/ }),
-/* 51 */
-/***/ (function(module, exports) {
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
 
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-var stylesInDom = {},
-	memoize = function(fn) {
-		var memo;
-		return function () {
-			if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-			return memo;
-		};
-	},
-	isOldIE = memoize(function() {
-		return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
-	}),
-	getHeadElement = memoize(function () {
-		return document.head || document.getElementsByTagName("head")[0];
-	}),
-	singletonElement = null,
-	singletonCounter = 0,
-	styleElementsInsertedAtTop = [];
-
-module.exports = function(list, options) {
-	if(typeof DEBUG !== "undefined" && DEBUG) {
-		if(typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-	}
-
-	options = options || {};
-	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-	// tags it will allow on a page
-	if (typeof options.singleton === "undefined") options.singleton = isOldIE();
-
-	// By default, add <style> tags to the bottom of <head>.
-	if (typeof options.insertAt === "undefined") options.insertAt = "bottom";
-
-	var styles = listToStyles(list);
-	addStylesToDom(styles, options);
-
-	return function update(newList) {
-		var mayRemove = [];
-		for(var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-			domStyle.refs--;
-			mayRemove.push(domStyle);
-		}
-		if(newList) {
-			var newStyles = listToStyles(newList);
-			addStylesToDom(newStyles, options);
-		}
-		for(var i = 0; i < mayRemove.length; i++) {
-			var domStyle = mayRemove[i];
-			if(domStyle.refs === 0) {
-				for(var j = 0; j < domStyle.parts.length; j++)
-					domStyle.parts[j]();
-				delete stylesInDom[domStyle.id];
-			}
-		}
-	};
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('span', {
+    staticClass: "js_prev prev"
+  }, [_c('svg', {
+    attrs: {
+      "xmlns": "http://www.w3.org/2000/svg",
+      "width": _vm.size,
+      "height": _vm.size,
+      "viewBox": "0 0 501.5 501.5"
+    }
+  }, [_c('g', [_c('path', {
+    attrs: {
+      "fill": _vm.color,
+      "d": "M302.67 90.877l55.77 55.508L254.575 250.75 358.44 355.116l-55.77 55.506L143.56 250.75z"
+    }
+  })])])])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-e66ea57e", module.exports)
+  }
 }
 
-function addStylesToDom(styles, options) {
-	for(var i = 0; i < styles.length; i++) {
-		var item = styles[i];
-		var domStyle = stylesInDom[item.id];
-		if(domStyle) {
-			domStyle.refs++;
-			for(var j = 0; j < domStyle.parts.length; j++) {
-				domStyle.parts[j](item.parts[j]);
-			}
-			for(; j < item.parts.length; j++) {
-				domStyle.parts.push(addStyle(item.parts[j], options));
-			}
-		} else {
-			var parts = [];
-			for(var j = 0; j < item.parts.length; j++) {
-				parts.push(addStyle(item.parts[j], options));
-			}
-			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-		}
-	}
-}
+/***/ }),
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
 
-function listToStyles(list) {
-	var styles = [];
-	var newStyles = {};
-	for(var i = 0; i < list.length; i++) {
-		var item = list[i];
-		var id = item[0];
-		var css = item[1];
-		var media = item[2];
-		var sourceMap = item[3];
-		var part = {css: css, media: media, sourceMap: sourceMap};
-		if(!newStyles[id])
-			styles.push(newStyles[id] = {id: id, parts: [part]});
-		else
-			newStyles[id].parts.push(part);
-	}
-	return styles;
-}
-
-function insertStyleElement(options, styleElement) {
-	var head = getHeadElement();
-	var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-	if (options.insertAt === "top") {
-		if(!lastStyleElementInsertedAtTop) {
-			head.insertBefore(styleElement, head.firstChild);
-		} else if(lastStyleElementInsertedAtTop.nextSibling) {
-			head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-		} else {
-			head.appendChild(styleElement);
-		}
-		styleElementsInsertedAtTop.push(styleElement);
-	} else if (options.insertAt === "bottom") {
-		head.appendChild(styleElement);
-	} else {
-		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-	}
-}
-
-function removeStyleElement(styleElement) {
-	styleElement.parentNode.removeChild(styleElement);
-	var idx = styleElementsInsertedAtTop.indexOf(styleElement);
-	if(idx >= 0) {
-		styleElementsInsertedAtTop.splice(idx, 1);
-	}
-}
-
-function createStyleElement(options) {
-	var styleElement = document.createElement("style");
-	styleElement.type = "text/css";
-	insertStyleElement(options, styleElement);
-	return styleElement;
-}
-
-function addStyle(obj, options) {
-	var styleElement, update, remove;
-
-	if (options.singleton) {
-		var styleIndex = singletonCounter++;
-		styleElement = singletonElement || (singletonElement = createStyleElement(options));
-		update = applyToSingletonTag.bind(null, styleElement, styleIndex, false);
-		remove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);
-	} else {
-		styleElement = createStyleElement(options);
-		update = applyToTag.bind(null, styleElement);
-		remove = function() {
-			removeStyleElement(styleElement);
-		};
-	}
-
-	update(obj);
-
-	return function updateStyle(newObj) {
-		if(newObj) {
-			if(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)
-				return;
-			update(obj = newObj);
-		} else {
-			remove();
-		}
-	};
-}
-
-var replaceText = (function () {
-	var textStore = [];
-
-	return function (index, replacement) {
-		textStore[index] = replacement;
-		return textStore.filter(Boolean).join('\n');
-	};
-})();
-
-function applyToSingletonTag(styleElement, index, remove, obj) {
-	var css = remove ? "" : obj.css;
-
-	if (styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = replaceText(index, css);
-	} else {
-		var cssNode = document.createTextNode(css);
-		var childNodes = styleElement.childNodes;
-		if (childNodes[index]) styleElement.removeChild(childNodes[index]);
-		if (childNodes.length) {
-			styleElement.insertBefore(cssNode, childNodes[index]);
-		} else {
-			styleElement.appendChild(cssNode);
-		}
-	}
-}
-
-function applyToTag(styleElement, obj) {
-	var css = obj.css;
-	var media = obj.media;
-	var sourceMap = obj.sourceMap;
-
-	if (media) {
-		styleElement.setAttribute("media", media);
-	}
-
-	if (sourceMap) {
-		// https://developer.chrome.com/devtools/docs/javascript-debugging
-		// this makes source maps inside style tags work properly in Chrome
-		css += '\n/*# sourceURL=' + sourceMap.sources[0] + ' */';
-		// http://stackoverflow.com/a/26603875
-		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-	}
-
-	if (styleElement.styleSheet) {
-		styleElement.styleSheet.cssText = css;
-	} else {
-		while(styleElement.firstChild) {
-			styleElement.removeChild(styleElement.firstChild);
-		}
-		styleElement.appendChild(document.createTextNode(css));
-	}
-}
+exports.Item = __webpack_require__(47)
+exports.Lory = __webpack_require__(48)
+exports.Prev = __webpack_require__(50)
+exports.Next = __webpack_require__(49)
 
 
 /***/ }),
-/* 52 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(39);
+var content = __webpack_require__(43);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
-var update = __webpack_require__(51)(content, {});
+var update = __webpack_require__(10)(content, {});
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -5919,7 +7559,33 @@ if(false) {
 }
 
 /***/ }),
-/* 53 */
+/* 65 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(44);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(10)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!./../../css-loader/index.js!./../../vue-loader/lib/style-rewriter.js?id=data-v-64ea8e98!./../../sass-loader/index.js!./../../vue-loader/lib/selector.js?type=styles&index=0!./Lory.vue", function() {
+			var newContent = require("!!./../../css-loader/index.js!./../../vue-loader/lib/style-rewriter.js?id=data-v-64ea8e98!./../../sass-loader/index.js!./../../vue-loader/lib/selector.js?type=styles&index=0!./Lory.vue");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 !function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.VueSweetAlert=t():e.VueSweetAlert=t()}(this,function(){return function(e){function t(n){if(o[n])return o[n].exports;var r=o[n]={exports:{},id:n,loaded:!1};return e[n].call(r.exports,r,r.exports,t),r.loaded=!0,r.exports}var o={};return t.m=e,t.c=o,t.p="/build/",t(0)}([function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(t,"__esModule",{value:!0});var r=o(1),a=n(r);t["default"]=a["default"]},function(e,t,o){"use strict";function n(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(t,"__esModule",{value:!0});var r=o(6),a=n(r);o(5);var i={};i.install=function(e){e.prototype.$swal=a["default"]},t["default"]=i},function(e,t,o){t=e.exports=o(3)(),t.push([e.id,"body.swal2-in{overflow-y:hidden}.swal2-container,body.swal2-iosfix{position:fixed;left:0;right:0}.swal2-container{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;top:0;bottom:0;padding:10px;background-color:transparent;z-index:1060}.swal2-container:not(.swal2-in){pointer-events:none}.swal2-container.swal2-fade{-webkit-transition:background-color .1s;transition:background-color .1s}.swal2-container.swal2-in{background-color:rgba(0,0,0,.4)}.swal2-modal{background-color:#fff;font-family:Helvetica Neue,Helvetica,Arial,sans-serif;border-radius:5px;box-sizing:border-box;text-align:center;margin:auto;overflow-x:hidden;overflow-y:auto;display:none;position:relative}.swal2-modal:focus{outline:none}.swal2-modal.swal2-loading{overflow-y:hidden}.swal2-modal .swal2-title{color:#595959;font-size:30px;text-align:center;font-weight:600;text-transform:none;position:relative;margin:0;padding:0;line-height:60px;display:block}.swal2-modal .swal2-spacer{height:10px;color:transparent;border:0}.swal2-modal .swal2-styled{border:0;border-radius:3px;box-shadow:none;color:#fff;cursor:pointer;font-size:17px;font-weight:500;margin:0 5px;padding:10px 32px}.swal2-modal .swal2-styled:not(.swal2-loading)[disabled]{opacity:.4;cursor:no-drop}.swal2-modal .swal2-styled.swal2-loading{box-sizing:border-box;border:4px solid transparent;border-color:transparent;width:40px;height:40px;padding:0;margin:-2px 30px;vertical-align:top;background-color:transparent!important;color:transparent;cursor:default;border-radius:100%;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.swal2-modal .swal2-styled.swal2-loading,.swal2-modal :not(.swal2-styled).swal2-loading:after{-webkit-animation:rotate-loading 1.5s linear 0s infinite normal;animation:rotate-loading 1.5s linear 0s infinite normal}.swal2-modal :not(.swal2-styled).swal2-loading:after{display:inline-block;content:'';margin-left:5px;vertical-align:-1px;height:6px;width:6px;border:3px solid #999;border-right-color:transparent;border-radius:50%}.swal2-modal .swal2-image{margin:20px auto;max-width:100%}.swal2-modal .swal2-close{font-size:36px;line-height:36px;font-family:serif;position:absolute;top:5px;right:13px;cursor:pointer;color:#ccc;-webkit-transition:color .1s ease;transition:color .1s ease}.swal2-modal .swal2-close:hover{color:#d55}.swal2-modal>.swal2-checkbox,.swal2-modal>.swal2-file,.swal2-modal>.swal2-input,.swal2-modal>.swal2-radio,.swal2-modal>.swal2-select,.swal2-modal>.swal2-textarea{display:none}.swal2-modal .swal2-content{font-size:18px;text-align:center;font-weight:300;position:relative;float:none;margin:0;padding:0;line-height:normal;color:#545454}.swal2-modal .swal2-checkbox,.swal2-modal .swal2-file,.swal2-modal .swal2-input,.swal2-modal .swal2-radio,.swal2-modal .swal2-select,.swal2-modal .swal2-textarea{margin:20px auto}.swal2-modal .swal2-file,.swal2-modal .swal2-input,.swal2-modal .swal2-textarea{width:100%;box-sizing:border-box;border-radius:3px;border:1px solid #d9d9d9;font-size:18px;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);-webkit-transition:border-color box-shadow .3s;transition:border-color box-shadow .3s}.swal2-modal .swal2-file.swal2-inputerror,.swal2-modal .swal2-input.swal2-inputerror,.swal2-modal .swal2-textarea.swal2-inputerror{border-color:#f06e57}.swal2-modal .swal2-file:focus,.swal2-modal .swal2-input:focus,.swal2-modal .swal2-textarea:focus{outline:none;box-shadow:0 0 3px #c4e6f5;border:1px solid #b4dbed}.swal2-modal .swal2-file:focus::-webkit-input-placeholder,.swal2-modal .swal2-input:focus::-webkit-input-placeholder,.swal2-modal .swal2-textarea:focus::-webkit-input-placeholder{-webkit-transition:opacity .3s ease .03s;transition:opacity .3s ease .03s;opacity:.8}.swal2-modal .swal2-file:focus::-moz-placeholder,.swal2-modal .swal2-input:focus::-moz-placeholder,.swal2-modal .swal2-textarea:focus::-moz-placeholder{-webkit-transition:opacity .3s ease .03s;transition:opacity .3s ease .03s;opacity:.8}.swal2-modal .swal2-file:focus:-ms-input-placeholder,.swal2-modal .swal2-input:focus:-ms-input-placeholder,.swal2-modal .swal2-textarea:focus:-ms-input-placeholder{-webkit-transition:opacity .3s ease .03s;transition:opacity .3s ease .03s;opacity:.8}.swal2-modal .swal2-file:focus::placeholder,.swal2-modal .swal2-input:focus::placeholder,.swal2-modal .swal2-textarea:focus::placeholder{-webkit-transition:opacity .3s ease .03s;transition:opacity .3s ease .03s;opacity:.8}.swal2-modal .swal2-file::-webkit-input-placeholder,.swal2-modal .swal2-input::-webkit-input-placeholder,.swal2-modal .swal2-textarea::-webkit-input-placeholder{color:#e6e6e6}.swal2-modal .swal2-file::-moz-placeholder,.swal2-modal .swal2-input::-moz-placeholder,.swal2-modal .swal2-textarea::-moz-placeholder{color:#e6e6e6}.swal2-modal .swal2-file:-ms-input-placeholder,.swal2-modal .swal2-input:-ms-input-placeholder,.swal2-modal .swal2-textarea:-ms-input-placeholder{color:#e6e6e6}.swal2-modal .swal2-file::placeholder,.swal2-modal .swal2-input::placeholder,.swal2-modal .swal2-textarea::placeholder{color:#e6e6e6}.swal2-modal .swal2-range input{float:left;width:80%}.swal2-modal .swal2-range output{float:right;width:20%;font-size:20px;font-weight:600;text-align:center}.swal2-modal .swal2-range input,.swal2-modal .swal2-range output{height:43px;line-height:43px;vertical-align:middle;margin:20px auto;padding:0}.swal2-modal .swal2-input{height:43px;padding:0 12px}.swal2-modal .swal2-input[type=number]{max-width:150px}.swal2-modal .swal2-file{font-size:20px}.swal2-modal .swal2-textarea{height:108px;padding:12px}.swal2-modal .swal2-select{color:#545454;font-size:inherit;padding:5px 10px;min-width:40%;max-width:100%}.swal2-modal .swal2-radio{border:0}.swal2-modal .swal2-radio label:not(:first-child){margin-left:20px}.swal2-modal .swal2-radio input,.swal2-modal .swal2-radio span{vertical-align:middle}.swal2-modal .swal2-radio input{margin:0 3px 0 0}.swal2-modal .swal2-checkbox{color:#545454}.swal2-modal .swal2-checkbox input,.swal2-modal .swal2-checkbox span{vertical-align:middle}.swal2-modal .swal2-validationerror{background-color:#f0f0f0;margin:0 -20px;overflow:hidden;padding:10px;color:gray;font-size:16px;font-weight:300;display:none}.swal2-modal .swal2-validationerror:before{content:'!';display:inline-block;width:24px;height:24px;border-radius:50%;background-color:#ea7d7d;color:#fff;line-height:24px;text-align:center;margin-right:10px}@supports (-ms-accelerator:true){.swal2-range input{width:100%!important}.swal2-range output{display:none}}@media (-ms-high-contrast:active),all and (-ms-high-contrast:none){.swal2-range input{width:100%!important}.swal2-range output{display:none}}.swal2-icon{width:80px;height:80px;border:4px solid transparent;border-radius:50%;margin:20px auto 30px;padding:0;position:relative;box-sizing:content-box;cursor:default;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.swal2-icon.swal2-error{border-color:#f27474}.swal2-icon.swal2-error .x-mark{position:relative;display:block}.swal2-icon.swal2-error .line{position:absolute;height:5px;width:47px;background-color:#f27474;display:block;top:37px;border-radius:2px}.swal2-icon.swal2-error .line.left{-webkit-transform:rotate(45deg);transform:rotate(45deg);left:17px}.swal2-icon.swal2-error .line.right{-webkit-transform:rotate(-45deg);transform:rotate(-45deg);right:16px}.swal2-icon.swal2-warning{font-family:Helvetica Neue,Helvetica,Arial,sans-serif;color:#f8bb86;border-color:#facea8}.swal2-icon.swal2-info,.swal2-icon.swal2-warning{font-size:60px;line-height:80px;text-align:center}.swal2-icon.swal2-info{font-family:Open Sans,sans-serif;color:#3fc3ee;border-color:#9de0f6}.swal2-icon.swal2-question{font-family:Helvetica Neue,Helvetica,Arial,sans-serif;color:#87adbd;border-color:#c9dae1;font-size:60px;line-height:80px;text-align:center}.swal2-icon.swal2-success{border-color:#a5dc86}.swal2-icon.swal2-success:after,.swal2-icon.swal2-success:before{content:'';border-radius:50%;position:absolute;width:60px;height:120px;background:#fff;-webkit-transform:rotate(45deg);transform:rotate(45deg)}.swal2-icon.swal2-success:before{border-radius:120px 0 0 120px;top:-7px;left:-33px;-webkit-transform:rotate(-45deg);transform:rotate(-45deg);-webkit-transform-origin:60px 60px;transform-origin:60px 60px}.swal2-icon.swal2-success:after{border-radius:0 120px 120px 0;top:-11px;left:30px;-webkit-transform:rotate(-45deg);transform:rotate(-45deg);-webkit-transform-origin:0 60px;transform-origin:0 60px}.swal2-icon.swal2-success .placeholder{width:80px;height:80px;border:4px solid hsla(98,55%,69%,.2);border-radius:50%;box-sizing:content-box;position:absolute;left:-4px;top:-4px;z-index:2}.swal2-icon.swal2-success .fix{width:7px;height:90px;background-color:#fff;position:absolute;left:28px;top:8px;z-index:1;-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}.swal2-icon.swal2-success .line{height:5px;background-color:#a5dc86;display:block;border-radius:2px;position:absolute;z-index:2}.swal2-icon.swal2-success .line.tip{width:25px;left:14px;top:46px;-webkit-transform:rotate(45deg);transform:rotate(45deg)}.swal2-icon.swal2-success .line.long{width:47px;right:8px;top:38px;-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}.swal2-progresssteps{font-weight:600;margin:0 0 20px;padding:0}.swal2-progresssteps li{display:inline-block;position:relative}.swal2-progresssteps .swal2-progresscircle{background:#3085d6;border-radius:2em;color:#fff;height:2em;line-height:2em;text-align:center;width:2em;z-index:20}.swal2-progresssteps .swal2-progresscircle:first-child{margin-left:0}.swal2-progresssteps .swal2-progresscircle:last-child{margin-right:0}.swal2-progresssteps .swal2-progresscircle.swal2-activeprogressstep{background:#3085d6}.swal2-progresssteps .swal2-progresscircle.swal2-activeprogressstep~.swal2-progresscircle,.swal2-progresssteps .swal2-progresscircle.swal2-activeprogressstep~.swal2-progressline{background:#add8e6}.swal2-progresssteps .swal2-progressline{background:#3085d6;height:.4em;margin:0 -1px;z-index:10}[class^=swal2]{-webkit-tap-highlight-color:transparent}@-webkit-keyframes showSweetAlert{0%{-webkit-transform:scale(.7);transform:scale(.7)}45%{-webkit-transform:scale(1.05);transform:scale(1.05)}80%{-webkit-transform:scale(.95);transform:scale(.95)}to{-webkit-transform:scale(1);transform:scale(1)}}@keyframes showSweetAlert{0%{-webkit-transform:scale(.7);transform:scale(.7)}45%{-webkit-transform:scale(1.05);transform:scale(1.05)}80%{-webkit-transform:scale(.95);transform:scale(.95)}to{-webkit-transform:scale(1);transform:scale(1)}}@-webkit-keyframes hideSweetAlert{0%{-webkit-transform:scale(1);transform:scale(1);opacity:1}to{-webkit-transform:scale(.5);transform:scale(.5);opacity:0}}@keyframes hideSweetAlert{0%{-webkit-transform:scale(1);transform:scale(1);opacity:1}to{-webkit-transform:scale(.5);transform:scale(.5);opacity:0}}.swal2-show{-webkit-animation:showSweetAlert .3s;animation:showSweetAlert .3s}.swal2-show.swal2-noanimation{-webkit-animation:none;animation:none}.swal2-hide{-webkit-animation:hideSweetAlert .15s forwards;animation:hideSweetAlert .15s forwards}.swal2-hide.swal2-noanimation{-webkit-animation:none;animation:none}@-webkit-keyframes animate-success-tip{0%{width:0;left:1px;top:19px}54%{width:0;left:1px;top:19px}70%{width:50px;left:-8px;top:37px}84%{width:17px;left:21px;top:48px}to{width:25px;left:14px;top:45px}}@keyframes animate-success-tip{0%{width:0;left:1px;top:19px}54%{width:0;left:1px;top:19px}70%{width:50px;left:-8px;top:37px}84%{width:17px;left:21px;top:48px}to{width:25px;left:14px;top:45px}}@-webkit-keyframes animate-success-long{0%{width:0;right:46px;top:54px}65%{width:0;right:46px;top:54px}84%{width:55px;right:0;top:35px}to{width:47px;right:8px;top:38px}}@keyframes animate-success-long{0%{width:0;right:46px;top:54px}65%{width:0;right:46px;top:54px}84%{width:55px;right:0;top:35px}to{width:47px;right:8px;top:38px}}@-webkit-keyframes rotatePlaceholder{0%{-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}5%{-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}12%{-webkit-transform:rotate(-405deg);transform:rotate(-405deg)}to{-webkit-transform:rotate(-405deg);transform:rotate(-405deg)}}@keyframes rotatePlaceholder{0%{-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}5%{-webkit-transform:rotate(-45deg);transform:rotate(-45deg)}12%{-webkit-transform:rotate(-405deg);transform:rotate(-405deg)}to{-webkit-transform:rotate(-405deg);transform:rotate(-405deg)}}.animate-success-tip{-webkit-animation:animate-success-tip .75s;animation:animate-success-tip .75s}.animate-success-long{-webkit-animation:animate-success-long .75s;animation:animate-success-long .75s}.swal2-success.animate:after{-webkit-animation:rotatePlaceholder 4.25s ease-in;animation:rotatePlaceholder 4.25s ease-in}@-webkit-keyframes animate-error-icon{0%{-webkit-transform:rotateX(100deg);transform:rotateX(100deg);opacity:0}to{-webkit-transform:rotateX(0deg);transform:rotateX(0deg);opacity:1}}@keyframes animate-error-icon{0%{-webkit-transform:rotateX(100deg);transform:rotateX(100deg);opacity:0}to{-webkit-transform:rotateX(0deg);transform:rotateX(0deg);opacity:1}}.animate-error-icon{-webkit-animation:animate-error-icon .5s;animation:animate-error-icon .5s}@-webkit-keyframes animate-x-mark{0%{-webkit-transform:scale(.4);transform:scale(.4);margin-top:26px;opacity:0}50%{-webkit-transform:scale(.4);transform:scale(.4);margin-top:26px;opacity:0}80%{-webkit-transform:scale(1.15);transform:scale(1.15);margin-top:-6px}to{-webkit-transform:scale(1);transform:scale(1);margin-top:0;opacity:1}}@keyframes animate-x-mark{0%{-webkit-transform:scale(.4);transform:scale(.4);margin-top:26px;opacity:0}50%{-webkit-transform:scale(.4);transform:scale(.4);margin-top:26px;opacity:0}80%{-webkit-transform:scale(1.15);transform:scale(1.15);margin-top:-6px}to{-webkit-transform:scale(1);transform:scale(1);margin-top:0;opacity:1}}.animate-x-mark{-webkit-animation:animate-x-mark .5s;animation:animate-x-mark .5s}@-webkit-keyframes pulse-warning{0%{border-color:#f8d486}to{border-color:#f8bb86}}@keyframes pulse-warning{0%{border-color:#f8d486}to{border-color:#f8bb86}}.pulse-warning{-webkit-animation:pulse-warning .75s infinite alternate;animation:pulse-warning .75s infinite alternate}@-webkit-keyframes rotate-loading{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@keyframes rotate-loading{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}",""])},function(e,t){e.exports=function(){var e=[];return e.toString=function(){for(var e=[],t=0;t<this.length;t++){var o=this[t];o[2]?e.push("@media "+o[2]+"{"+o[1]+"}"):e.push(o[1])}return e.join("")},e.i=function(t,o){"string"==typeof t&&(t=[[null,t,""]]);for(var n={},r=0;r<this.length;r++){var a=this[r][0];"number"==typeof a&&(n[a]=!0)}for(r=0;r<t.length;r++){var i=t[r];"number"==typeof i[0]&&n[i[0]]||(o&&!i[2]?i[2]=o:o&&(i[2]="("+i[2]+") and ("+o+")"),e.push(i))}},e}},function(e,t,o){function n(e,t){for(var o=0;o<e.length;o++){var n=e[o],r=f[n.id];if(r){r.refs++;for(var a=0;a<r.parts.length;a++)r.parts[a](n.parts[a]);for(;a<n.parts.length;a++)r.parts.push(c(n.parts[a],t))}else{for(var i=[],a=0;a<n.parts.length;a++)i.push(c(n.parts[a],t));f[n.id]={id:n.id,refs:1,parts:i}}}}function r(e){for(var t=[],o={},n=0;n<e.length;n++){var r=e[n],a=r[0],i=r[1],s=r[2],l=r[3],c={css:i,media:s,sourceMap:l};o[a]?o[a].parts.push(c):t.push(o[a]={id:a,parts:[c]})}return t}function a(e,t){var o=g(),n=x[x.length-1];if("top"===e.insertAt)n?n.nextSibling?o.insertBefore(t,n.nextSibling):o.appendChild(t):o.insertBefore(t,o.firstChild),x.push(t);else{if("bottom"!==e.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");o.appendChild(t)}}function i(e){e.parentNode.removeChild(e);var t=x.indexOf(e);t>=0&&x.splice(t,1)}function s(e){var t=document.createElement("style");return t.type="text/css",a(e,t),t}function l(e){var t=document.createElement("link");return t.rel="stylesheet",a(e,t),t}function c(e,t){var o,n,r;if(t.singleton){var a=b++;o=h||(h=s(t)),n=u.bind(null,o,a,!1),r=u.bind(null,o,a,!0)}else e.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(o=l(t),n=p.bind(null,o),r=function(){i(o),o.href&&URL.revokeObjectURL(o.href)}):(o=s(t),n=d.bind(null,o),r=function(){i(o)});return n(e),function(t){if(t){if(t.css===e.css&&t.media===e.media&&t.sourceMap===e.sourceMap)return;n(e=t)}else r()}}function u(e,t,o,n){var r=o?"":n.css;if(e.styleSheet)e.styleSheet.cssText=v(t,r);else{var a=document.createTextNode(r),i=e.childNodes;i[t]&&e.removeChild(i[t]),i.length?e.insertBefore(a,i[t]):e.appendChild(a)}}function d(e,t){var o=t.css,n=t.media;if(n&&e.setAttribute("media",n),e.styleSheet)e.styleSheet.cssText=o;else{for(;e.firstChild;)e.removeChild(e.firstChild);e.appendChild(document.createTextNode(o))}}function p(e,t){var o=t.css,n=t.sourceMap;n&&(o+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(n))))+" */");var r=new Blob([o],{type:"text/css"}),a=e.href;e.href=URL.createObjectURL(r),a&&URL.revokeObjectURL(a)}var f={},m=function(e){var t;return function(){return"undefined"==typeof t&&(t=e.apply(this,arguments)),t}},w=m(function(){return/msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase())}),g=m(function(){return document.head||document.getElementsByTagName("head")[0]}),h=null,b=0,x=[];e.exports=function(e,t){t=t||{},"undefined"==typeof t.singleton&&(t.singleton=w()),"undefined"==typeof t.insertAt&&(t.insertAt="bottom");var o=r(e);return n(o,t),function(e){for(var a=[],i=0;i<o.length;i++){var s=o[i],l=f[s.id];l.refs--,a.push(l)}if(e){var c=r(e);n(c,t)}for(var i=0;i<a.length;i++){var l=a[i];if(0===l.refs){for(var u=0;u<l.parts.length;u++)l.parts[u]();delete f[l.id]}}}};var v=function(){var e=[];return function(t,o){return e[t]=o,e.filter(Boolean).join("\n")}}()},function(e,t,o){var n=o(2);"string"==typeof n&&(n=[[e.id,n,""]]);o(4)(n,{});n.locals&&(e.exports=n.locals)},function(e,t,o){/*!
@@ -5930,7 +7596,7 @@ if(false) {
 //# sourceMappingURL=vue-sweetalert.js.map
 
 /***/ }),
-/* 54 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14503,10 +16169,10 @@ Vue$3.compile = compileToFunctions;
 
 module.exports = Vue$3;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(55)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(68)))
 
 /***/ }),
-/* 55 */
+/* 68 */
 /***/ (function(module, exports) {
 
 var g;
@@ -14533,1495 +16199,12 @@ module.exports = g;
 
 
 /***/ }),
-/* 56 */
-/***/ (function(module, exports, __webpack_require__) {
-
-__webpack_require__(9);
-module.exports = __webpack_require__(10);
-
-
-/***/ }),
-/* 57 */,
-/* 58 */,
-/* 59 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-// Robert Penner's easeInOutQuad
-
-// find the rest of his easing functions here: http://robertpenner.com/easing/
-// find them exported for ES6 consumption here: https://github.com/jaxgeller/ez.js
-
-var easeInOutQuad = function easeInOutQuad(t, b, c, d) {
-  t /= d / 2;
-  if (t < 1) return c / 2 * t * t + b;
-  t--;
-  return -c / 2 * (t * (t - 2) - 1) + b;
-};
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-  return typeof obj;
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-};
-
-var jumper = function jumper() {
-  // private variable cache
-  // no variables are created during a jump, preventing memory leaks
-
-  var element = void 0; // element to scroll to                   (node)
-
-  var start = void 0; // where scroll starts                    (px)
-  var stop = void 0; // where scroll stops                     (px)
-
-  var offset = void 0; // adjustment from the stop position      (px)
-  var easing = void 0; // easing function                        (function)
-  var a11y = void 0; // accessibility support flag             (boolean)
-
-  var distance = void 0; // distance of scroll                     (px)
-  var duration = void 0; // scroll duration                        (ms)
-
-  var timeStart = void 0; // time scroll started                    (ms)
-  var timeElapsed = void 0; // time spent scrolling thus far          (ms)
-
-  var next = void 0; // next scroll position                   (px)
-
-  var callback = void 0; // to call when done scrolling            (function)
-
-  // scroll position helper
-
-  function location() {
-    return window.scrollY || window.pageYOffset;
-  }
-
-  // element offset helper
-
-  function top(element) {
-    return element.getBoundingClientRect().top + start;
-  }
-
-  // rAF loop helper
-
-  function loop(timeCurrent) {
-    // store time scroll started, if not started already
-    if (!timeStart) {
-      timeStart = timeCurrent;
-    }
-
-    // determine time spent scrolling so far
-    timeElapsed = timeCurrent - timeStart;
-
-    // calculate next scroll position
-    next = easing(timeElapsed, start, distance, duration);
-
-    // scroll to it
-    window.scrollTo(0, next);
-
-    // check progress
-    timeElapsed < duration ? window.requestAnimationFrame(loop) // continue scroll loop
-    : done(); // scrolling is done
-  }
-
-  // scroll finished helper
-
-  function done() {
-    // account for rAF time rounding inaccuracies
-    window.scrollTo(0, start + distance);
-
-    // if scrolling to an element, and accessibility is enabled
-    if (element && a11y) {
-      // add tabindex indicating programmatic focus
-      element.setAttribute('tabindex', '-1');
-
-      // focus the element
-      element.focus();
-    }
-
-    // if it exists, fire the callback
-    if (typeof callback === 'function') {
-      callback();
-    }
-
-    // reset time for next jump
-    timeStart = false;
-  }
-
-  // API
-
-  function jump(target) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    // resolve options, or use defaults
-    duration = options.duration || 1000;
-    offset = options.offset || 0;
-    callback = options.callback; // "undefined" is a suitable default, and won't be called
-    easing = options.easing || easeInOutQuad;
-    a11y = options.a11y || false;
-
-    // cache starting position
-    start = location();
-
-    // resolve target
-    switch (typeof target === 'undefined' ? 'undefined' : _typeof(target)) {
-      // scroll from current position
-      case 'number':
-        element = undefined; // no element to scroll to
-        a11y = false; // make sure accessibility is off
-        stop = start + target;
-        break;
-
-      // scroll to element (node)
-      // bounding rect is relative to the viewport
-      case 'object':
-        element = target;
-        stop = top(element);
-        break;
-
-      // scroll to element (selector)
-      // bounding rect is relative to the viewport
-      case 'string':
-        element = document.querySelector(target);
-        stop = top(element);
-        break;
-    }
-
-    // resolve scroll distance, accounting for offset
-    distance = stop - start + offset;
-
-    // resolve duration
-    switch (_typeof(options.duration)) {
-      // number in ms
-      case 'number':
-        duration = options.duration;
-        break;
-
-      // function passed the distance of the scroll
-      case 'function':
-        duration = options.duration(distance);
-        break;
-    }
-
-    // start the loop
-    window.requestAnimationFrame(loop);
-  }
-
-  // expose only the jump method
-  return jump;
-};
-
-// export singleton
-
-var singleton = jumper();
-
-/* harmony default export */ __webpack_exports__["a"] = singleton;
-
-
-/***/ }),
-/* 60 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lory_js__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lory_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lory_js__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-/* harmony default export */ __webpack_exports__["default"] = {
-
-  props: {
-    options: {
-      type: Object,
-      default: function _default() {
-        return {};
-      }
-    }
-  },
-
-  data: function data() {
-    return {
-      slider: null
-    };
-  },
-  mounted: function mounted() {
-    this.slider = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_lory_js__["lory"])(this.$el, this.options);
-  },
-  beforeDestroy: function beforeDestroy() {
-    this.slider.destroy();
-  }
-};
-
-/***/ }),
-/* 61 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = {
-  props: {
-    size: {
-      type: Number,
-      default: 50
-    },
-    color: {
-      type: String,
-      default: '#2E435A'
-    }
-  }
-};
-
-/***/ }),
-/* 62 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = {
-  props: {
-    size: {
-      type: Number,
-      default: 50
-    },
-    color: {
-      type: String,
-      default: '#2E435A'
-    }
-  }
-};
-
-/***/ }),
-/* 63 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(40)();
-// imports
-
-
-// module
-exports.push([module.i, "/**\n * (optional) define here the style definitions which should be applied on the slider container\n * e.g. width including further controls like arrows etc.\n */\n.slider .frame {\n  /**\n     * (optional) wrapper width, specifies width of the slider frame.\n     */\n  width: 100%;\n  position: relative;\n  font-size: 0;\n  line-height: 0;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.slider .slides {\n  width: 100%;\n  display: inline-block;\n}\n.slider li {\n  position: relative;\n  display: inline-block;\n  /**\n     * (optional) if the content inside the slide element has a defined size.\n     */\n  width: 100%;\n  position: relative;\n  display: inline-block;\n  text-align: center;\n  font-size: 15px;\n  line-height: 30px;\n}\n.slider .prev, .slider .next {\n  position: absolute;\n  top: 50%;\n  margin-top: -25px;\n  display: block;\n  cursor: pointer;\n}\n.slider .next {\n  right: 0;\n}\n.slider .prev {\n  left: 0;\n}\n.slider .next svg, .slider .prev svg {\n  width: 25px;\n}\n.slider.js_rewind .frame li {\n  margin-right: 10px;\n}\n", ""]);
-
-// exports
-
-
-/***/ }),
-/* 64 */
-/***/ (function(module, exports, __webpack_require__) {
-
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(true)
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else {
-		var a = factory();
-		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
-	}
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
-/******/
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(1);
-
-
-/***/ },
-/* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /* globals jQuery */
-	
-	exports.lory = lory;
-	
-	var _detectPrefixes = __webpack_require__(2);
-	
-	var _detectPrefixes2 = _interopRequireDefault(_detectPrefixes);
-	
-	var _dispatchEvent = __webpack_require__(3);
-	
-	var _dispatchEvent2 = _interopRequireDefault(_dispatchEvent);
-	
-	var _defaults = __webpack_require__(5);
-	
-	var _defaults2 = _interopRequireDefault(_defaults);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var slice = Array.prototype.slice;
-	
-	function lory(slider, opts) {
-	    var position = void 0;
-	    var slidesWidth = void 0;
-	    var frameWidth = void 0;
-	    var slides = void 0;
-	
-	    /**
-	     * slider DOM elements
-	     */
-	    var frame = void 0;
-	    var slideContainer = void 0;
-	    var prevCtrl = void 0;
-	    var nextCtrl = void 0;
-	    var prefixes = void 0;
-	    var transitionEndCallback = void 0;
-	
-	    var index = 0;
-	    var options = {};
-	
-	    /**
-	     * if object is jQuery convert to native DOM element
-	     */
-	    if (typeof jQuery !== 'undefined' && slider instanceof jQuery) {
-	        slider = slider[0];
-	    }
-	
-	    /**
-	     * private
-	     * set active class to element which is the current slide
-	     */
-	    function setActiveElement(slides, currentIndex) {
-	        var _options = options;
-	        var classNameActiveSlide = _options.classNameActiveSlide;
-	
-	
-	        slides.forEach(function (element, index) {
-	            if (element.classList.contains(classNameActiveSlide)) {
-	                element.classList.remove(classNameActiveSlide);
-	            }
-	        });
-	
-	        slides[currentIndex].classList.add(classNameActiveSlide);
-	    }
-	
-	    /**
-	     * private
-	     * setupInfinite: function to setup if infinite is set
-	     *
-	     * @param  {array} slideArray
-	     * @return {array} array of updated slideContainer elements
-	     */
-	    function setupInfinite(slideArray) {
-	        var _options2 = options;
-	        var infinite = _options2.infinite;
-	
-	
-	        var front = slideArray.slice(0, infinite);
-	        var back = slideArray.slice(slideArray.length - infinite, slideArray.length);
-	
-	        front.forEach(function (element) {
-	            var cloned = element.cloneNode(true);
-	
-	            slideContainer.appendChild(cloned);
-	        });
-	
-	        back.reverse().forEach(function (element) {
-	            var cloned = element.cloneNode(true);
-	
-	            slideContainer.insertBefore(cloned, slideContainer.firstChild);
-	        });
-	
-	        slideContainer.addEventListener(prefixes.transitionEnd, onTransitionEnd);
-	
-	        return slice.call(slideContainer.children);
-	    }
-	
-	    /**
-	     * [dispatchSliderEvent description]
-	     * @return {[type]} [description]
-	     */
-	    function dispatchSliderEvent(phase, type, detail) {
-	        (0, _dispatchEvent2.default)(slider, phase + '.lory.' + type, detail);
-	    }
-	
-	    /**
-	     * translates to a given position in a given time in milliseconds
-	     *
-	     * @to        {number} number in pixels where to translate to
-	     * @duration  {number} time in milliseconds for the transistion
-	     * @ease      {string} easing css property
-	     */
-	    function translate(to, duration, ease) {
-	        var style = slideContainer && slideContainer.style;
-	
-	        if (style) {
-	            style[prefixes.transition + 'TimingFunction'] = ease;
-	            style[prefixes.transition + 'Duration'] = duration + 'ms';
-	
-	            if (prefixes.hasTranslate3d) {
-	                style[prefixes.transform] = 'translate3d(' + to + 'px, 0, 0)';
-	            } else {
-	                style[prefixes.transform] = 'translate(' + to + 'px, 0)';
-	            }
-	        }
-	    }
-	
-	    /**
-	     * slidefunction called by prev, next & touchend
-	     *
-	     * determine nextIndex and slide to next postion
-	     * under restrictions of the defined options
-	     *
-	     * @direction  {boolean}
-	     */
-	    function slide(nextIndex, direction) {
-	        var _options3 = options;
-	        var slideSpeed = _options3.slideSpeed;
-	        var slidesToScroll = _options3.slidesToScroll;
-	        var infinite = _options3.infinite;
-	        var rewind = _options3.rewind;
-	        var rewindSpeed = _options3.rewindSpeed;
-	        var ease = _options3.ease;
-	        var classNameActiveSlide = _options3.classNameActiveSlide;
-	
-	
-	        var duration = slideSpeed;
-	
-	        var nextSlide = direction ? index + 1 : index - 1;
-	        var maxOffset = Math.round(slidesWidth - frameWidth);
-	
-	        dispatchSliderEvent('before', 'slide', {
-	            index: index,
-	            nextSlide: nextSlide
-	        });
-	
-	        if (typeof nextIndex !== 'number') {
-	            if (direction) {
-	                nextIndex = index + slidesToScroll;
-	            } else {
-	                nextIndex = index - slidesToScroll;
-	            }
-	        }
-	
-	        nextIndex = Math.min(Math.max(nextIndex, 0), slides.length - 1);
-	
-	        if (infinite && direction === undefined) {
-	            nextIndex += infinite;
-	        }
-	
-	        var nextOffset = Math.min(Math.max(slides[nextIndex].offsetLeft * -1, maxOffset * -1), 0);
-	
-	        if (rewind && Math.abs(position.x) === maxOffset && direction) {
-	            nextOffset = 0;
-	            nextIndex = 0;
-	            duration = rewindSpeed;
-	        }
-	
-	        /**
-	         * translate to the nextOffset by a defined duration and ease function
-	         */
-	        translate(nextOffset, duration, ease);
-	
-	        /**
-	         * update the position with the next position
-	         */
-	        position.x = nextOffset;
-	
-	        /**
-	         * update the index with the nextIndex only if
-	         * the offset of the nextIndex is in the range of the maxOffset
-	         */
-	        if (slides[nextIndex].offsetLeft <= maxOffset) {
-	            index = nextIndex;
-	        }
-	
-	        if (infinite && (nextIndex === slides.length - infinite || nextIndex === 0)) {
-	            if (direction) {
-	                index = infinite;
-	            }
-	
-	            if (!direction) {
-	                index = slides.length - infinite * 2;
-	            }
-	
-	            position.x = slides[index].offsetLeft * -1;
-	
-	            transitionEndCallback = function transitionEndCallback() {
-	                translate(slides[index].offsetLeft * -1, 0, undefined);
-	            };
-	        }
-	
-	        if (classNameActiveSlide) {
-	            setActiveElement(slice.call(slides), index);
-	        }
-	
-	        dispatchSliderEvent('after', 'slide', {
-	            currentSlide: index
-	        });
-	    }
-	
-	    /**
-	     * public
-	     * setup function
-	     */
-	    function setup() {
-	        dispatchSliderEvent('before', 'init');
-	
-	        prefixes = (0, _detectPrefixes2.default)();
-	        options = _extends({}, _defaults2.default, opts);
-	
-	        var _options4 = options;
-	        var classNameFrame = _options4.classNameFrame;
-	        var classNameSlideContainer = _options4.classNameSlideContainer;
-	        var classNamePrevCtrl = _options4.classNamePrevCtrl;
-	        var classNameNextCtrl = _options4.classNameNextCtrl;
-	        var enableMouseEvents = _options4.enableMouseEvents;
-	        var classNameActiveSlide = _options4.classNameActiveSlide;
-	
-	
-	        frame = slider.getElementsByClassName(classNameFrame)[0];
-	        slideContainer = frame.getElementsByClassName(classNameSlideContainer)[0];
-	        prevCtrl = slider.getElementsByClassName(classNamePrevCtrl)[0];
-	        nextCtrl = slider.getElementsByClassName(classNameNextCtrl)[0];
-	
-	        position = {
-	            x: slideContainer.offsetLeft,
-	            y: slideContainer.offsetTop
-	        };
-	
-	        if (options.infinite) {
-	            slides = setupInfinite(slice.call(slideContainer.children));
-	        } else {
-	            slides = slice.call(slideContainer.children);
-	        }
-	
-	        reset();
-	
-	        if (classNameActiveSlide) {
-	            setActiveElement(slides, index);
-	        }
-	
-	        if (prevCtrl && nextCtrl) {
-	            prevCtrl.addEventListener('click', prev);
-	            nextCtrl.addEventListener('click', next);
-	        }
-	
-	        frame.addEventListener('touchstart', onTouchstart);
-	
-	        if (enableMouseEvents) {
-	            frame.addEventListener('mousedown', onTouchstart);
-	            frame.addEventListener('click', onClick);
-	        }
-	
-	        options.window.addEventListener('resize', onResize);
-	
-	        dispatchSliderEvent('after', 'init');
-	    }
-	
-	    /**
-	     * public
-	     * reset function: called on resize
-	     */
-	    function reset() {
-	        var _options5 = options;
-	        var infinite = _options5.infinite;
-	        var ease = _options5.ease;
-	        var rewindSpeed = _options5.rewindSpeed;
-	        var rewindOnResize = _options5.rewindOnResize;
-	        var classNameActiveSlide = _options5.classNameActiveSlide;
-	
-	
-	        slidesWidth = slideContainer.getBoundingClientRect().width || slideContainer.offsetWidth;
-	        frameWidth = frame.getBoundingClientRect().width || frame.offsetWidth;
-	
-	        if (frameWidth === slidesWidth) {
-	            slidesWidth = slides.reduce(function (previousValue, slide) {
-	                return previousValue + slide.getBoundingClientRect().width || slide.offsetWidth;
-	            }, 0);
-	        }
-	
-	        if (rewindOnResize) {
-	            index = 0;
-	        } else {
-	            ease = null;
-	            rewindSpeed = 0;
-	        }
-	
-	        if (infinite) {
-	            translate(slides[index + infinite].offsetLeft * -1, 0, null);
-	
-	            index = index + infinite;
-	            position.x = slides[index].offsetLeft * -1;
-	        } else {
-	            translate(slides[index].offsetLeft * -1, rewindSpeed, ease);
-	            position.x = slides[index].offsetLeft * -1;
-	        }
-	
-	        if (classNameActiveSlide) {
-	            setActiveElement(slice.call(slides), index);
-	        }
-	    }
-	
-	    /**
-	     * public
-	     * slideTo: called on clickhandler
-	     */
-	    function slideTo(index) {
-	        slide(index);
-	    }
-	
-	    /**
-	     * public
-	     * returnIndex function: called on clickhandler
-	     */
-	    function returnIndex() {
-	        return index - options.infinite || 0;
-	    }
-	
-	    /**
-	     * public
-	     * prev function: called on clickhandler
-	     */
-	    function prev() {
-	        slide(false, false);
-	    }
-	
-	    /**
-	     * public
-	     * next function: called on clickhandler
-	     */
-	    function next() {
-	        slide(false, true);
-	    }
-	
-	    /**
-	     * public
-	     * destroy function: called to gracefully destroy the lory instance
-	     */
-	    function destroy() {
-	        dispatchSliderEvent('before', 'destroy');
-	
-	        // remove event listeners
-	        frame.removeEventListener(prefixes.transitionEnd, onTransitionEnd);
-	        frame.removeEventListener('touchstart', onTouchstart);
-	        frame.removeEventListener('touchmove', onTouchmove);
-	        frame.removeEventListener('touchend', onTouchend);
-	        frame.removeEventListener('mousemove', onTouchmove);
-	        frame.removeEventListener('mousedown', onTouchstart);
-	        frame.removeEventListener('mouseup', onTouchend);
-	        frame.removeEventListener('mouseleave', onTouchend);
-	        frame.removeEventListener('click', onClick);
-	
-	        options.window.removeEventListener('resize', onResize);
-	
-	        if (prevCtrl) {
-	            prevCtrl.removeEventListener('click', prev);
-	        }
-	
-	        if (nextCtrl) {
-	            nextCtrl.removeEventListener('click', next);
-	        }
-	
-	        // remove cloned slides if infinite is set
-	        if (options.infinite) {
-	            Array.apply(null, Array(options.infinite)).forEach(function () {
-	                slideContainer.removeChild(slideContainer.firstChild);
-	                slideContainer.removeChild(slideContainer.lastChild);
-	            });
-	        }
-	
-	        dispatchSliderEvent('after', 'destroy');
-	    }
-	
-	    // event handling
-	
-	    var touchOffset = void 0;
-	    var delta = void 0;
-	    var isScrolling = void 0;
-	
-	    function onTransitionEnd() {
-	        if (transitionEndCallback) {
-	            transitionEndCallback();
-	
-	            transitionEndCallback = undefined;
-	        }
-	    }
-	
-	    function onTouchstart(event) {
-	        var _options6 = options;
-	        var enableMouseEvents = _options6.enableMouseEvents;
-	
-	        var touches = event.touches ? event.touches[0] : event;
-	
-	        if (enableMouseEvents) {
-	            frame.addEventListener('mousemove', onTouchmove);
-	            frame.addEventListener('mouseup', onTouchend);
-	            frame.addEventListener('mouseleave', onTouchend);
-	        }
-	
-	        frame.addEventListener('touchmove', onTouchmove);
-	        frame.addEventListener('touchend', onTouchend);
-	
-	        var pageX = touches.pageX;
-	        var pageY = touches.pageY;
-	
-	
-	        touchOffset = {
-	            x: pageX,
-	            y: pageY,
-	            time: Date.now()
-	        };
-	
-	        isScrolling = undefined;
-	
-	        delta = {};
-	
-	        dispatchSliderEvent('on', 'touchstart', {
-	            event: event
-	        });
-	    }
-	
-	    function onTouchmove(event) {
-	        var touches = event.touches ? event.touches[0] : event;
-	        var pageX = touches.pageX;
-	        var pageY = touches.pageY;
-	
-	
-	        delta = {
-	            x: pageX - touchOffset.x,
-	            y: pageY - touchOffset.y
-	        };
-	
-	        if (typeof isScrolling === 'undefined') {
-	            isScrolling = !!(isScrolling || Math.abs(delta.x) < Math.abs(delta.y));
-	        }
-	
-	        if (!isScrolling && touchOffset) {
-	            event.preventDefault();
-	            translate(position.x + delta.x, 0, null);
-	        }
-	
-	        // may be
-	        dispatchSliderEvent('on', 'touchmove', {
-	            event: event
-	        });
-	    }
-	
-	    function onTouchend(event) {
-	        /**
-	         * time between touchstart and touchend in milliseconds
-	         * @duration {number}
-	         */
-	        var duration = touchOffset ? Date.now() - touchOffset.time : undefined;
-	
-	        /**
-	         * is valid if:
-	         *
-	         * -> swipe attempt time is over 300 ms
-	         * and
-	         * -> swipe distance is greater than 25px
-	         * or
-	         * -> swipe distance is more then a third of the swipe area
-	         *
-	         * @isValidSlide {Boolean}
-	         */
-	        var isValid = Number(duration) < 300 && Math.abs(delta.x) > 25 || Math.abs(delta.x) > frameWidth / 3;
-	
-	        /**
-	         * is out of bounds if:
-	         *
-	         * -> index is 0 and delta x is greater than 0
-	         * or
-	         * -> index is the last slide and delta is smaller than 0
-	         *
-	         * @isOutOfBounds {Boolean}
-	         */
-	        var isOutOfBounds = !index && delta.x > 0 || index === slides.length - 1 && delta.x < 0;
-	
-	        var direction = delta.x < 0;
-	
-	        if (!isScrolling) {
-	            if (isValid && !isOutOfBounds) {
-	                slide(false, direction);
-	            } else {
-	                translate(position.x, options.snapBackSpeed);
-	            }
-	        }
-	
-	        touchOffset = undefined;
-	
-	        /**
-	         * remove eventlisteners after swipe attempt
-	         */
-	        frame.removeEventListener('touchmove', onTouchmove);
-	        frame.removeEventListener('touchend', onTouchend);
-	        frame.removeEventListener('mousemove', onTouchmove);
-	        frame.removeEventListener('mouseup', onTouchend);
-	        frame.removeEventListener('mouseleave', onTouchend);
-	
-	        dispatchSliderEvent('on', 'touchend', {
-	            event: event
-	        });
-	    }
-	
-	    function onClick(event) {
-	        if (delta.x) {
-	            event.preventDefault();
-	        }
-	    }
-	
-	    function onResize(event) {
-	        reset();
-	
-	        dispatchSliderEvent('on', 'resize', {
-	            event: event
-	        });
-	    }
-	
-	    // trigger initial setup
-	    setup();
-	
-	    // expose public api
-	    return {
-	        setup: setup,
-	        reset: reset,
-	        slideTo: slideTo,
-	        returnIndex: returnIndex,
-	        prev: prev,
-	        next: next,
-	        destroy: destroy
-	    };
-	}
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = detectPrefixes;
-	/**
-	 * Detecting prefixes for saving time and bytes
-	 */
-	function detectPrefixes() {
-	    var transform = void 0;
-	    var transition = void 0;
-	    var transitionEnd = void 0;
-	    var hasTranslate3d = void 0;
-	
-	    (function () {
-	        var el = document.createElement('_');
-	        var style = el.style;
-	
-	        var prop = void 0;
-	
-	        if (style[prop = 'webkitTransition'] === '') {
-	            transitionEnd = 'webkitTransitionEnd';
-	            transition = prop;
-	        }
-	
-	        if (style[prop = 'transition'] === '') {
-	            transitionEnd = 'transitionend';
-	            transition = prop;
-	        }
-	
-	        if (style[prop = 'webkitTransform'] === '') {
-	            transform = prop;
-	        }
-	
-	        if (style[prop = 'msTransform'] === '') {
-	            transform = prop;
-	        }
-	
-	        if (style[prop = 'transform'] === '') {
-	            transform = prop;
-	        }
-	
-	        document.body.insertBefore(el, null);
-	        style[transform] = 'translate3d(0, 0, 0)';
-	        hasTranslate3d = !!global.getComputedStyle(el).getPropertyValue(transform);
-	        document.body.removeChild(el);
-	    })();
-	
-	    return {
-	        transform: transform,
-	        transition: transition,
-	        transitionEnd: transitionEnd,
-	        hasTranslate3d: hasTranslate3d
-	    };
-	}
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = dispatchEvent;
-	
-	var _customEvent = __webpack_require__(4);
-	
-	var _customEvent2 = _interopRequireDefault(_customEvent);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	/**
-	 * dispatch custom events
-	 *
-	 * @param  {element} el         slideshow element
-	 * @param  {string}  type       custom event name
-	 * @param  {object}  detail     custom detail information
-	 */
-	function dispatchEvent(target, type, detail) {
-	    var event = new _customEvent2.default(type, {
-	        bubbles: true,
-	        cancelable: true,
-	        detail: detail
-	    });
-	
-	    target.dispatchEvent(event);
-	}
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {
-	var NativeCustomEvent = global.CustomEvent;
-	
-	function useNative () {
-	  try {
-	    var p = new NativeCustomEvent('cat', { detail: { foo: 'bar' } });
-	    return  'cat' === p.type && 'bar' === p.detail.foo;
-	  } catch (e) {
-	  }
-	  return false;
-	}
-	
-	/**
-	 * Cross-browser `CustomEvent` constructor.
-	 *
-	 * https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent.CustomEvent
-	 *
-	 * @public
-	 */
-	
-	module.exports = useNative() ? NativeCustomEvent :
-	
-	// IE >= 9
-	'function' === typeof document.createEvent ? function CustomEvent (type, params) {
-	  var e = document.createEvent('CustomEvent');
-	  if (params) {
-	    e.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
-	  } else {
-	    e.initCustomEvent(type, false, false, void 0);
-	  }
-	  return e;
-	} :
-	
-	// IE <= 8
-	function CustomEvent (type, params) {
-	  var e = document.createEventObject();
-	  e.type = type;
-	  if (params) {
-	    e.bubbles = Boolean(params.bubbles);
-	    e.cancelable = Boolean(params.cancelable);
-	    e.detail = params.detail;
-	  } else {
-	    e.bubbles = false;
-	    e.cancelable = false;
-	    e.detail = void 0;
-	  }
-	  return e;
-	}
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = {
-	  /**
-	   * slides scrolled at once
-	   * @slidesToScroll {Number}
-	   */
-	  slidesToScroll: 1,
-	
-	  /**
-	   * time in milliseconds for the animation of a valid slide attempt
-	   * @slideSpeed {Number}
-	   */
-	  slideSpeed: 300,
-	
-	  /**
-	   * time in milliseconds for the animation of the rewind after the last slide
-	   * @rewindSpeed {Number}
-	   */
-	  rewindSpeed: 600,
-	
-	  /**
-	   * time for the snapBack of the slider if the slide attempt was not valid
-	   * @snapBackSpeed {Number}
-	   */
-	  snapBackSpeed: 200,
-	
-	  /**
-	   * Basic easing functions: https://developer.mozilla.org/de/docs/Web/CSS/transition-timing-function
-	   * cubic bezier easing functions: http://easings.net/de
-	   * @ease {String}
-	   */
-	  ease: 'ease',
-	
-	  /**
-	   * if slider reached the last slide, with next click the slider goes back to the startindex.
-	   * use infinite or rewind, not both
-	   * @rewind {Boolean}
-	   */
-	  rewind: false,
-	
-	  /**
-	   * number of visible slides or false
-	   * use infinite or rewind, not both
-	   * @infinite {number}
-	   */
-	  infinite: false,
-	
-	  /**
-	   * class name for slider frame
-	   * @classNameFrame {string}
-	   */
-	  classNameFrame: 'js_frame',
-	
-	  /**
-	   * class name for slides container
-	   * @classNameSlideContainer {string}
-	   */
-	  classNameSlideContainer: 'js_slides',
-	
-	  /**
-	   * class name for slider prev control
-	   * @classNamePrevCtrl {string}
-	   */
-	  classNamePrevCtrl: 'js_prev',
-	
-	  /**
-	   * class name for slider next control
-	   * @classNameNextCtrl {string}
-	   */
-	  classNameNextCtrl: 'js_next',
-	
-	  /**
-	   * class name for current active slide
-	   * if emptyString then no class is set
-	   * @classNameActiveSlide {string}
-	   */
-	  classNameActiveSlide: 'active',
-	
-	  /**
-	   * enables mouse events for swiping on desktop devices
-	   * @enableMouseEvents {boolean}
-	   */
-	  enableMouseEvents: false,
-	
-	  /**
-	   * window instance
-	   * @window {object}
-	   */
-	  window: window,
-	
-	  /**
-	   * If false, slides lory to the first slide on window resize.
-	   * @rewindOnResize {boolean}
-	   */
-	  rewindOnResize: true
-	};
-
-/***/ }
-/******/ ])
-});
-;
-
-/***/ }),
-/* 65 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __vue_exports__, __vue_options__
-var __vue_styles__ = {}
-
-/* template */
-var __vue_template__ = __webpack_require__(69)
-__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-if (
-  typeof __vue_exports__.default === "object" ||
-  typeof __vue_exports__.default === "function"
-) {
-if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
-__vue_options__ = __vue_exports__ = __vue_exports__.default
-}
-if (typeof __vue_options__ === "function") {
-  __vue_options__ = __vue_options__.options
-}
-__vue_options__.__file = "/Users/fdbp/Sites/fredesk-v2/node_modules/vue-lory/src/Item.vue"
-__vue_options__.render = __vue_template__.render
-__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-1eee1621", __vue_options__)
-  } else {
-    hotAPI.reload("data-v-1eee1621", __vue_options__)
-  }
-})()}
-if (__vue_options__.functional) {console.error("[vue-loader] Item.vue: functional components are not supported and should be defined in plain js files using render functions.")}
-
-module.exports = __vue_exports__
-
-
-/***/ }),
-/* 66 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __vue_exports__, __vue_options__
-var __vue_styles__ = {}
-
-/* styles */
-__webpack_require__(74)
-
-/* script */
-__vue_exports__ = __webpack_require__(60)
-
-/* template */
-var __vue_template__ = __webpack_require__(71)
-__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-if (
-  typeof __vue_exports__.default === "object" ||
-  typeof __vue_exports__.default === "function"
-) {
-if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
-__vue_options__ = __vue_exports__ = __vue_exports__.default
-}
-if (typeof __vue_options__ === "function") {
-  __vue_options__ = __vue_options__.options
-}
-__vue_options__.__file = "/Users/fdbp/Sites/fredesk-v2/node_modules/vue-lory/src/Lory.vue"
-__vue_options__.render = __vue_template__.render
-__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-64ea8e98", __vue_options__)
-  } else {
-    hotAPI.reload("data-v-64ea8e98", __vue_options__)
-  }
-})()}
-if (__vue_options__.functional) {console.error("[vue-loader] Lory.vue: functional components are not supported and should be defined in plain js files using render functions.")}
-
-module.exports = __vue_exports__
-
-
-/***/ }),
-/* 67 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __vue_exports__, __vue_options__
-var __vue_styles__ = {}
-
-/* script */
-__vue_exports__ = __webpack_require__(61)
-
-/* template */
-var __vue_template__ = __webpack_require__(70)
-__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-if (
-  typeof __vue_exports__.default === "object" ||
-  typeof __vue_exports__.default === "function"
-) {
-if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
-__vue_options__ = __vue_exports__ = __vue_exports__.default
-}
-if (typeof __vue_options__ === "function") {
-  __vue_options__ = __vue_options__.options
-}
-__vue_options__.__file = "/Users/fdbp/Sites/fredesk-v2/node_modules/vue-lory/src/Next.vue"
-__vue_options__.render = __vue_template__.render
-__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-2da53601", __vue_options__)
-  } else {
-    hotAPI.reload("data-v-2da53601", __vue_options__)
-  }
-})()}
-if (__vue_options__.functional) {console.error("[vue-loader] Next.vue: functional components are not supported and should be defined in plain js files using render functions.")}
-
-module.exports = __vue_exports__
-
-
-/***/ }),
-/* 68 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __vue_exports__, __vue_options__
-var __vue_styles__ = {}
-
-/* script */
-__vue_exports__ = __webpack_require__(62)
-
-/* template */
-var __vue_template__ = __webpack_require__(72)
-__vue_options__ = __vue_exports__ = __vue_exports__ || {}
-if (
-  typeof __vue_exports__.default === "object" ||
-  typeof __vue_exports__.default === "function"
-) {
-if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
-__vue_options__ = __vue_exports__ = __vue_exports__.default
-}
-if (typeof __vue_options__ === "function") {
-  __vue_options__ = __vue_options__.options
-}
-__vue_options__.__file = "/Users/fdbp/Sites/fredesk-v2/node_modules/vue-lory/src/Prev.vue"
-__vue_options__.render = __vue_template__.render
-__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-e66ea57e", __vue_options__)
-  } else {
-    hotAPI.reload("data-v-e66ea57e", __vue_options__)
-  }
-})()}
-if (__vue_options__.functional) {console.error("[vue-loader] Prev.vue: functional components are not supported and should be defined in plain js files using render functions.")}
-
-module.exports = __vue_exports__
-
-
-/***/ }),
 /* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('li', {
-    staticClass: "js_slide"
-  }, [_vm._t("default")], 2)
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-1eee1621", module.exports)
-  }
-}
+__webpack_require__(11);
+module.exports = __webpack_require__(12);
 
-/***/ }),
-/* 70 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('span', {
-    staticClass: "js_next next"
-  }, [_c('svg', {
-    attrs: {
-      "xmlns": "http://www.w3.org/2000/svg",
-      "width": _vm.size,
-      "height": _vm.size,
-      "viewBox": "0 0 501.5 501.5"
-    }
-  }, [_c('g', [_c('path', {
-    attrs: {
-      "fill": _vm.color,
-      "d": "M199.33 410.622l-55.77-55.508L247.425 250.75 143.56 146.384l55.77-55.507L358.44 250.75z"
-    }
-  })])])])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-2da53601", module.exports)
-  }
-}
-
-/***/ }),
-/* 71 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "slider js_slider"
-  }, [_c('div', {
-    staticClass: "frame js_frame"
-  }, [_c('ul', {
-    staticClass: "slides js_slides"
-  }, [_vm._t("default")], 2)]), _vm._v(" "), _vm._t("actions")], 2)
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-64ea8e98", module.exports)
-  }
-}
-
-/***/ }),
-/* 72 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('span', {
-    staticClass: "js_prev prev"
-  }, [_c('svg', {
-    attrs: {
-      "xmlns": "http://www.w3.org/2000/svg",
-      "width": _vm.size,
-      "height": _vm.size,
-      "viewBox": "0 0 501.5 501.5"
-    }
-  }, [_c('g', [_c('path', {
-    attrs: {
-      "fill": _vm.color,
-      "d": "M302.67 90.877l55.77 55.508L254.575 250.75 358.44 355.116l-55.77 55.506L143.56 250.75z"
-    }
-  })])])])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-e66ea57e", module.exports)
-  }
-}
-
-/***/ }),
-/* 73 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports.Item = __webpack_require__(65)
-exports.Lory = __webpack_require__(66)
-exports.Prev = __webpack_require__(68)
-exports.Next = __webpack_require__(67)
-
-
-/***/ }),
-/* 74 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(63);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(51)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!./../../css-loader/index.js!./../../vue-loader/lib/style-rewriter.js?id=data-v-64ea8e98!./../../sass-loader/index.js!./../../vue-loader/lib/selector.js?type=styles&index=0!./Lory.vue", function() {
-			var newContent = require("!!./../../css-loader/index.js!./../../vue-loader/lib/style-rewriter.js?id=data-v-64ea8e98!./../../sass-loader/index.js!./../../vue-loader/lib/selector.js?type=styles&index=0!./Lory.vue");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
 
 /***/ })
 /******/ ]);

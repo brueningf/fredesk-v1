@@ -73,9 +73,6 @@ body {
 }
 
 
-
-
-
 .hero.is-info .subtitle a:hover {
     color: $turquoise;
 }
@@ -187,14 +184,14 @@ span.fa {
 }
 .box.is-service-box {
     background-color: $success;
-    height: 370px;
+    height: 100%;
 }
 
 //about
 
 .box.is-knowledge {
     background-color: $dark;
-    height: 320px;    
+    height: 100%;    
 }
 
 
