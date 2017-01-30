@@ -10,6 +10,9 @@
         <a class="icon" href="https://github.com/FredericBruening?tab=repositories">
           <i class="fa fa-github"></i>
         </a>
+        <a class="icon" href="http://plus.google.com/110606372353776557821">
+          <i class="fa fa-google-plus"></i>
+        </a>
       </p>
     </div>
   </div>
