@@ -108,7 +108,7 @@
           </a>
         </div>
         <div class="column is-one-quarter-mobile is-3 is-work">
-        <a href="http://188.226.193.121:8881">
+        <a href="http://188.226.193.121:8881/private">
           <img class="hvr-grow" width="280" src="/img/recent-work/logo-elitevents.png" alt="Elitevents">
         </a>
         </div>
