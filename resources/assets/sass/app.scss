@@ -71,13 +71,19 @@ body {
 ::-moz-scrollbar { 
     display: none; 
 }
-
-
-.hero.is-info .subtitle a:hover {
+.hero.is-info a {
+  color: white;
+  &:hover {
     color: $turquoise;
+  }
 }
 .button {
-    color: $turquoise;
+    color: white;
+    background: transparent;
+    &:hover {
+      color: $turquoise;
+      border-color: $turquoise;
+    }
 }
 .input {
     background: transparent;

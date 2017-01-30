@@ -128,7 +128,7 @@
         <h2 class="subtitle">
           It’s simple.
         </h2>
-        <a href="/#/contact" class="button is-white is-outlined">Contact Me</a>
+        <a href="/#/contact" class="button is-outlined">Contact Me</a>
       </div>
     </section>
 </div>
