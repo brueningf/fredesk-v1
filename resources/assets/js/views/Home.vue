@@ -46,7 +46,7 @@
       <img class="is-small-yellow-mountain" src="/img/background-home-services-fredesk.png" alt="home">
       <div class="hero-body has-text-centered" style="padding-top:0">
         <div class="container">
-          <h2 class="title is-2 has-padding-bottom-1">Services</h2>
+          <h2 class="title is-2 has-padding-bottom-1">SERVICES</h2>
           <h2 class="subtitle is-5 has-padding-bottom-2">
             Tailored services for any development incentive. Of any scope. At any time.
           </h2>
