@@ -22,10 +22,12 @@
 		            <router-link class="nav-item hvr-underline-from-left" active-class="is-active" to="/about">
 		            About Me
 		            </router-link>
+		            <a href="http://snippets.fredesk.com" class="nav-item hvr-underline-from-left">
+		            Snippets
+		            </a>
 		            <a href="http://blog.fredesk.com" class="nav-item hvr-underline-from-left">
 		            Blog
-		            </a>
-
+		            </a>		            
 		            <router-link class="nav-item hvr-underline-from-left" active-class="is-active" to="/contact">
 		            Contact
 		            </router-link> 	
