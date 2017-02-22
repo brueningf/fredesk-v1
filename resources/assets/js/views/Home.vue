@@ -91,11 +91,13 @@
         </div>
       </div>
     </section>
-    <section class="hero is-medium is-light is-bold">
-      <div class="hero-body has-text-centered">
-      <div class="columns is-multiline is-mobile">
+    <section class="hero is-medium is-primary is-bold">
+          <img class="is-small-mountain animated slideInUp" src="/img/background-home-fredesk.png" alt="home">
+
+      <div class="hero-body has-text-centered" style="padding-top: 0">
+      <div class="columns is-multiline is-mobile has-padding-bottom-2">
         <div class="column is-12 has-padding-bottom-2">
-          <h3 class="title is-3 has-padding-bottom-2">Recent Work</h3>
+          <h2 class="title is-2 has-padding-bottom-2">RECENT WORK</h2>
         </div>
         <div class="column is-one-quarter-mobile is-3 is-work">
           <a href="http://weddingscanner.com">
@@ -118,17 +120,13 @@
         </a>
         </div>
       </div>
+      <div class="columns is-multiline is-mobile" style="padding-top: 8em">
+        <div class="column is-12">
+          <h3 class="title">WANT TO START A PROJECT?</h3>
+          <h3 class="subtitle has-padding-bottom-2">It’s simple.</h3>
+          <a href="/#/contact" class="button is-large is-outlined is-white">Contact Me</a>
+        </div>
       </div>
-    </section>
-    <section class="hero is-small is-info">
-      <div class="hero-body has-text-centered">
-        <h2 class="title">
-          WANT TO START A PROJECT?
-        </h2>
-        <h2 class="subtitle">
-          It’s simple.
-        </h2>
-        <a href="/#/contact" class="button is-outlined">Contact Me</a>
       </div>
     </section>
 </div>
