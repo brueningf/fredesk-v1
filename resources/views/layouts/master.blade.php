@@ -1,24 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <!-- Add this code to Organization page: -->
-        <div itemscope itemtype="http://schema.org/LocalBusiness">
-            <meta itemprop="description"
-                  content="Custom Web Development in Berlin. Advanced Web & Mobile Solutions. Enterprise Apps & Portals. HTML5, CSS3, PHP, Javascript, Vuejs, CLI Applications, Laravel, Java, MySQL, JTL Wawi, JTL Shop, Templates, Wordpress">
-            <link itemprop="url" href="https://fredesk.com" rel="author"/>
-            <a itemprop="url" href="https://fredesk.com"><span itemprop="name"
-                                                               style="display:block;"><strong>Fredesk - Custom Web Development in Berlin</strong></span>
-            </a>
-            <div itemprop="address"
-                 itemscope
-                 itemtype="http://schema.org/PostalAddress">
-                <div>
-                    <span itemprop="addressLocality" style="display:block;">Berlin</span>,
-                </div>
-                <span itemprop="addressCountry"
-                      style="display:block;">Germany</span>
-            </div>
-        </div>
+        
 
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
