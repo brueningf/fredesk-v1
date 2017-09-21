@@ -20,8 +20,7 @@
 
 <!-- Basic meta info -->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="name" content="Fredesk Portfolio" />
-<meta name="description" content="Fredesk is a Berlin-based web development company delivering full-cycle custom web design and development services." />
+<meta name="name" content="Fredesk is a Berlin-based web development company delivering full-cycle custom web design and development services" />
 
 <!-- G+ Open Graph -->
 <meta property="og:title" content="Web Development in Berlin" />
